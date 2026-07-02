@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -42,7 +42,6 @@ window.addEventListener('appinstalled', () => {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>S Express Medical — Plateforme de Gestion</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=DM+Mono:wght@400;500;600&display=swap');
 
@@ -651,40 +650,6 @@ table.fac-table .right { text-align:right; font-family:'DM Mono',monospace; font
       <div class="f-group f-wide">
         <button class="btn-ajouter" onclick="addCourse()">+ Ajouter</button>
       </div>
-    </div>
-  </div>
-
-  <div class="form-card" id="lot-card">
-    <div class="form-title">⚡ Saisie rapide par lot (plusieurs courses d'un coup)</div>
-    <div class="f-group" style="margin-bottom:12px;">
-      <label class="f-label">Date des courses (pour tout le lot)</label>
-      <input type="date" class="f-input" id="lot-date" style="max-width:220px;">
-    </div>
-
-    <div class="f-group" style="margin-bottom:14px;">
-      <label class="f-label">📸 Photo du cahier (aide-mémoire — à relire vous-même, l'écriture manuscrite n'est pas lue à 100%)</label>
-      <input type="file" accept="image/*" capture="environment" id="lot-photo-input" onchange="ocrLotPhoto()">
-      <div id="lot-ocr-status" style="font-size:12px;color:#6B7280;margin-top:6px;"></div>
-      <textarea id="lot-ocr-text" class="f-input" rows="4" placeholder="Le texte reconnu dans la photo apparaîtra ici pour vous aider à recopier vite — vérifiez-le, il peut contenir des erreurs." style="margin-top:8px;font-family:'DM Mono',monospace;font-size:12px;"></textarea>
-    </div>
-
-    <table id="lot-table" style="width:100%;border-collapse:collapse;margin-bottom:10px;">
-      <thead>
-        <tr style="text-align:left;font-size:11px;color:#6B7280;text-transform:uppercase;">
-          <th style="padding:6px 4px;">Client</th>
-          <th style="padding:6px 4px;">Destination</th>
-          <th style="padding:6px 4px;">Livreur</th>
-          <th style="padding:6px 4px;">Montant (F)</th>
-          <th style="padding:6px 4px;">Statut</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody id="lot-tbody"></tbody>
-    </table>
-
-    <div class="f-group f-wide" style="display:flex;gap:10px;flex-wrap:wrap;">
-      <button class="btn-ajouter" type="button" onclick="addLotRow()" style="background:#fff;color:var(--navy,#0B1F4A);border:2px solid var(--navy,#0B1F4A);">+ Ligne</button>
-      <button class="btn-ajouter" type="button" onclick="saveLotAll()">✅ Enregistrer toutes les lignes</button>
     </div>
   </div>
 
@@ -1310,104 +1275,6 @@ function deleteCourse(id) {
   renderAll();
 }
 
-// ══ SAISIE RAPIDE PAR LOT ══
-function livreurOptionsHTML() {
-  return document.getElementById('f-livreur').innerHTML;
-}
-
-function lotZoneMontantFromDest(destValue) {
-  const dest = (destValue || '').trim();
-  for (const [name, z] of Object.entries(DESTINATIONS)) {
-    if (name.toLowerCase() === dest.toLowerCase()) return ZONE_TARIFS[z];
-  }
-  return null;
-}
-
-function addLotRow() {
-  const tbody = document.getElementById('lot-tbody');
-  const tr = document.createElement('tr');
-  tr.innerHTML = `
-    <td style="padding:4px;"><input class="f-input" type="text" list="clients-datalist" placeholder="Client"></td>
-    <td style="padding:4px;"><input class="f-input" type="text" list="dest-datalist" placeholder="Destination" oninput="lotAutoMontant(this)"></td>
-    <td style="padding:4px;"><select class="f-select">${livreurOptionsHTML()}</select></td>
-    <td style="padding:4px;"><input class="f-input" type="number" value="1000" style="width:90px;"></td>
-    <td style="padding:4px;">
-      <select class="f-select">
-        <option value="livre">✅ Livré</option>
-        <option value="encours">🟡 En cours</option>
-        <option value="echec">❌ Échec</option>
-      </select>
-    </td>
-    <td style="padding:4px;"><button type="button" onclick="this.closest('tr').remove()" style="background:none;border:none;color:#B03A2E;font-size:16px;cursor:pointer;">🗑</button></td>
-  `;
-  tbody.appendChild(tr);
-}
-
-function lotAutoMontant(destInput) {
-  const montant = lotZoneMontantFromDest(destInput.value);
-  if (montant != null) {
-    const row = destInput.closest('tr');
-    row.querySelector('input[type="number"]').value = montant;
-  }
-}
-
-function saveLotAll() {
-  const date = document.getElementById('lot-date').value || new Date().toISOString().split('T')[0];
-  const rows = Array.from(document.querySelectorAll('#lot-tbody tr'));
-  const list = getCourses();
-  let added = 0;
-
-  rows.forEach(row => {
-    const inputs = row.querySelectorAll('input, select');
-    const client  = inputs[0].value.trim();
-    const dest    = inputs[1].value.trim();
-    const livreur = inputs[2].value;
-    const montant = parseInt(inputs[3].value) || 0;
-    const statut  = inputs[4].value;
-    if (!client || !dest) return; // ligne vide ou incomplète, ignorée
-
-    bonCounter++;
-    const bon = 'BL-'+currentYear+'-'+String(bonCounter).padStart(4,'0');
-    const zoneLabel = (() => {
-      const opt = document.getElementById('f-zone').querySelector(`option[value="${montant}"]`);
-      return opt ? opt.textContent : 'Personnalisé';
-    })();
-    list.push({ id: Date.now()+added, bon, date, client, dest, livreur, zone: zoneLabel, montant, statut });
-    added++;
-  });
-
-  if (added === 0) { alert('Aucune ligne complète (client + destination requis).'); return; }
-
-  saveCounters();
-  saveCourses(list);
-  renderAll();
-
-  document.getElementById('lot-tbody').innerHTML = '';
-  addLotRow();
-  document.getElementById('lot-ocr-text').value = '';
-  showToast(`✅ ${added} course(s) enregistrée(s) en une fois`);
-}
-
-async function ocrLotPhoto() {
-  const input = document.getElementById('lot-photo-input');
-  const status = document.getElementById('lot-ocr-status');
-  const out = document.getElementById('lot-ocr-text');
-  if (!input.files || !input.files[0]) return;
-  if (typeof Tesseract === 'undefined') {
-    status.textContent = "Lecture indisponible hors ligne — connectez-vous à internet puis réessayez.";
-    return;
-  }
-  status.textContent = "⏳ Lecture de la photo en cours (ça peut prendre 10-20 secondes)...";
-  out.value = '';
-  try {
-    const { data } = await Tesseract.recognize(input.files[0], 'fra');
-    out.value = data.text.trim();
-    status.textContent = "✅ Texte reconnu — relisez-le, l'écriture manuscrite n'est jamais lue parfaitement. Recopiez ensuite les lignes ci-dessous.";
-  } catch (e) {
-    status.textContent = "Erreur de lecture : " + e.message;
-  }
-}
-
 function changeStatut(id, newStatut) {
   const list = getCourses();
   const c = list.find(c => c.id === id);
@@ -2031,8 +1898,6 @@ function endGuide() {
 updateMonthLabel();
 fillDestDatalist();
 document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
-document.getElementById('lot-date').value = new Date().toISOString().split('T')[0];
-addLotRow();
 document.getElementById('dep-date').value = new Date().toISOString().split('T')[0];
 
 // Charger depuis Supabase d'abord, puis afficher
