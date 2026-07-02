@@ -1,0 +1,2063 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="S Express">
+<meta name="application-name" content="S Express Medical">
+<meta name="theme-color" content="#0B1F4A">
+<meta name="description" content="Gestion des livraisons S Express Medical - Bamako">
+<link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjoiUyBFeHByZXNzIE1lZGljYWwiLCJzaG9ydF9uYW1lIjoiUyBFeHByZXNzIiwiZGVzY3JpcHRpb24iOiJHZXN0aW9uIGRlcyBsaXZyYWlzb25zIFMgRXhwcmVzcyBNZWRpY2FsIC0gQmFtYWtvIiwic3RhcnRfdXJsIjoiLi9pbmRleC5odG1sIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJvcmllbnRhdGlvbiI6InBvcnRyYWl0IiwiYmFja2dyb3VuZF9jb2xvciI6IiMwQjFGNEEiLCJ0aGVtZV9jb2xvciI6IiMwQjFGNEEiLCJsYW5nIjoiZnIiLCJpY29ucyI6W3sic3JjIjoiZGF0YTppbWFnZS9zdmcreG1sLCUzQ3N2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxOTIgMTkyJyUzRSUzQ3JlY3Qgd2lkdGg9JzE5MicgaGVpZ2h0PScxOTInIHJ4PSczMCcgZmlsbD0nJTIzMEIxRjRBJy8lM0UlM0N0ZXh0IHk9JzE0MCcgeD0nOTYnIGZvbnQtc2l6ZT0nMTUwJyBmb250LWZhbWlseT0nQXJpYWwnIGZvbnQtd2VpZ2h0PSc5MDAnIGZpbGw9JyUyM0U4MzAyQScgdGV4dC1hbmNob3I9J21pZGRsZSclM0VTJTNDL3RleHQlM0UlM0Mvc3ZnJTNFIiwic2l6ZXMiOiIxOTJ4MTkyIiwidHlwZSI6ImltYWdlL3N2Zyt4bWwiLCJwdXJwb3NlIjoiYW55In1dfQ==">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230B1F4A'/%3E%3Ctext y='.9em' font-size='80' font-family='Arial' font-weight='900' fill='%23E8302A'%3ES%3C/text%3E%3C/svg%3E">
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    const swCode = `const C='sexpress-gestion-v1';self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>self.clients.claim());self.addEventListener('fetch',e=>{if(e.request.url.includes('supabase'))return;e.respondWith(caches.match(e.request).then(c=>c||fetch(e.request).then(r=>{if(r.ok){const cl=r.clone();caches.open(C).then(ca=>ca.put(e.request,cl));}return r;}).catch(()=>c)));});`;
+    const blob = new Blob([swCode], {type:'application/javascript'});
+    navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{});
+  });
+}
+// PWA Install prompt
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('pwa-install-btn').style.display = 'flex';
+});
+function installPWA() {
+  if(deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => {
+      deferredPrompt = null;
+      document.getElementById('pwa-install-btn').style.display = 'none';
+    });
+  }
+}
+window.addEventListener('appinstalled', () => {
+  document.getElementById('pwa-install-btn').style.display = 'none';
+});
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S Express Medical — Plateforme de Gestion</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=DM+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --navy: #0B1F4A;
+  --navy2: #132860;
+  --navy3: #1a3278;
+  --red: #E8302A;
+  --green: #27AE60;
+  --green2: #1e8a49;
+  --gold: #F5C518;
+  --gold2: #d4a800;
+  --white: #FAFBFF;
+  --gray: #F0F2F7;
+  --gray2: #E4E8F0;
+  --muted: #8A94A6;
+  --border: #DDE1EC;
+  --text: #1A2340;
+  --shadow: 0 2px 12px rgba(11,31,74,.10);
+  --shadow-lg: 0 8px 32px rgba(11,31,74,.15);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--gray);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ══ TOPBAR ══ */
+.topbar {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  height: 60px;
+  position: sticky;
+  top: 0;
+  z-index: 300;
+  box-shadow: 0 2px 24px rgba(0,0,0,.4);
+  border-bottom: 2px solid rgba(245,197,24,.2);
+  gap: 10px;
+}
+
+.brand { display:flex; align-items:center; gap:10px; }
+.brand-s { font-family:'Bebas Neue',sans-serif; font-size:40px; color:var(--red); line-height:1; letter-spacing:1px; text-shadow:0 0 20px rgba(232,48,42,.3); }
+.brand-text { display:flex; flex-direction:column; line-height:1.1; }
+.brand-express { font-family:'Bebas Neue',sans-serif; font-size:16px; color:var(--white); letter-spacing:2.5px; }
+.brand-medical { font-family:'Bebas Neue',sans-serif; font-size:13px; color:var(--green); letter-spacing:2px; }
+.brand-sub { font-size:7.5px; color:#4A5580; letter-spacing:1.5px; text-transform:uppercase; margin-top:1px; }
+.brand-dot { width:6px; height:6px; background:var(--green); border-radius:50%; margin-left:4px; box-shadow:0 0 8px var(--green); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.6;transform:scale(1.3)} }
+
+.nav-tabs { display:flex; gap:3px; background:rgba(0,0,0,.2); padding:4px; border-radius:10px; }
+.nav-tab {
+  padding: 7px 11px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: #5A6480;
+  transition: all .2s;
+  font-family: 'DM Sans', sans-serif;
+  letter-spacing:.2px;
+  display:flex; align-items:center; gap:5px;
+}
+.nav-tab .nt-ico { font-size:14px; }
+.nav-tab.active { background: var(--gold); color: var(--navy); box-shadow:0 2px 8px rgba(245,197,24,.4); }
+.nav-tab:hover:not(.active) { background:rgba(255,255,255,.08); color:white; }
+
+/* ═══ BARRE DE NAVIGATION EN BAS (MOBILE) ═══ */
+@media (max-width: 900px) {
+  .nav-tabs {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 900;
+    background: var(--navy); gap: 0; padding: 6px 2px;
+    border-radius: 0; box-shadow: 0 -4px 20px rgba(0,0,0,.35);
+    justify-content: space-around;
+  }
+  .nav-tab {
+    flex-direction: column; gap: 2px; padding: 4px 2px; flex: 1;
+    font-size: 9.5px; border-radius: 8px; color: rgba(255,255,255,.75);
+  }
+  .nav-tab .nt-ico { font-size: 19px; }
+  .nav-tab .nt-lbl { font-size: 9px; }
+  .nav-tab.active { background: rgba(245,197,24,.18); color: var(--gold); box-shadow:none; }
+  body { padding-bottom: 70px; }
+
+  /* TOPBAR MOBILE : empile les éléments pour éviter qu'ils soient coupés */
+  .topbar {
+    height: auto; flex-wrap: wrap; padding: 10px 12px; gap: 8px;
+    justify-content: center; position: relative;
+  }
+  .brand { width: 100%; justify-content: center; }
+  .brand-s { font-size: 32px; }
+  .topbar-right {
+    width: 100%; flex-wrap: wrap; justify-content: center; gap: 8px;
+  }
+  .month-selector { order: -1; }
+  .btn-data { font-size: 11px; padding: 6px 10px; }
+  /* Le contenu des pages ne doit jamais déborder horizontalement */
+  .page { padding: 16px 12px; overflow-x: hidden; }
+  .stats-row { gap: 8px; grid-template-columns: repeat(2, 1fr) !important; }
+  .dash-grid { grid-template-columns: 1fr !important; }
+  .fac-parties, .fac-sigs, .modal-grid { grid-template-columns: 1fr !important; }
+  .table-card { overflow-x: auto; }
+}
+html, body { overflow-x: hidden; max-width: 100%; }
+
+.topbar-right { display:flex; align-items:center; gap:7px; }
+.month-selector { display:flex; align-items:center; gap:6px; }
+.month-btn {
+  width:26px; height:26px; border-radius:6px;
+  border:1.5px solid rgba(255,255,255,.15);
+  background:transparent; color:white; font-size:14px;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:background .2s;
+}
+.month-btn:hover { background:rgba(255,255,255,.12); }
+.month-label { font-family:'Bebas Neue',sans-serif; font-size:16px; color:var(--gold); letter-spacing:1px; min-width:95px; text-align:center; white-space:nowrap; }
+
+.btn-data {
+  padding:6px 12px; border-radius:7px;
+  border:1.5px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.06); color:white;
+  font-size:11px; font-weight:700; font-family:'DM Sans',sans-serif;
+  cursor:pointer; transition:all .2s; white-space:nowrap;
+}
+.btn-data:hover { background:rgba(255,255,255,.15); border-color:var(--gold); color:var(--gold); }
+.btn-import { display:flex; align-items:center; gap:4px; }
+
+/* ══ PAGES ══ */
+.page { display:none; padding:20px 24px; }
+.page.active { display:block; }
+
+/* ══ STATS CARDS ══ */
+.stats-row { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:18px; }
+.stat-card {
+  background:white; border-radius:12px; padding:14px 18px;
+  border-top:3px solid var(--navy); box-shadow:var(--shadow);
+  transition:transform .2s, box-shadow .2s; position:relative; overflow:hidden;
+}
+.stat-card::after { content:''; position:absolute; top:0; right:0; width:60px; height:60px; border-radius:50%; opacity:.05; transform:translate(20px,-20px); }
+.stat-card.c-green { border-color:var(--green); } .stat-card.c-green::after { background:var(--green); }
+.stat-card.c-gold  { border-color:var(--gold); }  .stat-card.c-gold::after  { background:var(--gold); }
+.stat-card.c-red   { border-color:var(--red); }   .stat-card.c-red::after   { background:var(--red); }
+.stat-card.c-navy  { border-color:var(--navy3); } .stat-card.c-navy::after  { background:var(--navy3); }
+.stat-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-lg); }
+.stat-label { font-size:9px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.8px; margin-bottom:5px; }
+.stat-val { font-family:'Bebas Neue',sans-serif; font-size:30px; color:var(--navy); line-height:1; }
+.stat-unit { font-size:10px; color:var(--muted); margin-top:2px; }
+.stat-trend { font-size:10px; font-weight:700; margin-top:4px; }
+.stat-trend.up { color:var(--green); }
+.stat-trend.down { color:var(--red); }
+
+/* ══ FORM ══ */
+.form-card {
+  background:white; border-radius:12px; padding:16px 18px;
+  margin-bottom:14px; box-shadow:var(--shadow);
+  border:2px dashed var(--border);
+}
+.form-card:focus-within { border-color:var(--navy); border-style:solid; }
+.form-title { font-family:'Bebas Neue',sans-serif; font-size:15px; color:var(--navy); letter-spacing:1.5px; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+.form-row { display:grid; grid-template-columns:repeat(4, 1fr); gap:12px 14px; align-items:end; }
+.f-group { display:flex; flex-direction:column; gap:3px; min-width:0; }
+.f-group.f-wide { grid-column:1 / -1; }  /* occupe toute la largeur (pour les suppléments et le bouton) */
+@media (max-width: 1100px) { .form-row { grid-template-columns:repeat(3, 1fr); } }
+@media (max-width: 760px)  { .form-row { grid-template-columns:repeat(2, 1fr); } }
+@media (max-width: 480px)  { .form-row { grid-template-columns:1fr; } }
+.f-label { font-size:9px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; }
+.f-input, .f-select {
+  padding:8px 10px; border:1.5px solid var(--border);
+  border-radius:8px; font-family:'DM Sans',sans-serif;
+  font-size:12px; color:var(--text); background:var(--gray);
+  outline:none; transition:border-color .2s, box-shadow .2s;
+  width:100%;
+}
+.f-input:focus, .f-select:focus { border-color:var(--navy); background:white; box-shadow:0 0 0 3px rgba(11,31,74,.08); }
+.supplements { display:flex; flex-wrap:wrap; gap:6px; }
+.sup-chk { display:flex; align-items:center; gap:5px; font-size:12px; font-weight:600; color:var(--navy); background:var(--gray); padding:7px 10px; border-radius:9px; cursor:pointer; border:1.5px solid var(--border); white-space:nowrap; }
+.sup-chk input { accent-color:var(--red); width:15px; height:15px; }
+.btn-ajouter {
+  padding:10px 28px; background:var(--navy); color:white;
+  border:none; border-radius:8px; font-family:'DM Sans',sans-serif;
+  font-weight:700; font-size:13px; cursor:pointer; white-space:nowrap;
+  height:40px; transition:all .2s; letter-spacing:.3px; justify-self:start;
+}
+.f-wide .btn-ajouter { width:auto; min-width:160px; }
+.btn-ajouter:hover { background:var(--red); transform:translateY(-1px); }
+
+/* ══ TABLE ══ */
+.table-card { background:white; border-radius:12px; overflow:hidden; box-shadow:var(--shadow); }
+.table-head {
+  background:linear-gradient(135deg, var(--navy), var(--navy2));
+  padding:11px 18px; display:flex; justify-content:space-between; align-items:center;
+}
+.table-head-title { font-family:'Bebas Neue',sans-serif; font-size:17px; color:white; letter-spacing:2px; }
+.badge { background:var(--gold); color:var(--navy); padding:3px 12px; border-radius:20px; font-size:11px; font-weight:800; }
+.badge-green { background:var(--green); color:white; }
+
+.table-filters { padding:10px 18px; background:#F8FAFC; border-bottom:1px solid var(--border); display:flex; gap:8px; align-items:center; }
+.filter-input { padding:6px 10px; border:1.5px solid var(--border); border-radius:7px; font-size:12px; font-family:'DM Sans',sans-serif; outline:none; background:white; }
+.filter-input:focus { border-color:var(--navy); }
+
+table { width:100%; border-collapse:collapse; }
+thead th { background:#132860; color:rgba(255,255,255,.8); padding:8px 12px; text-align:left; font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; }
+tbody tr { border-bottom:1px solid var(--border); transition:background .15s; }
+tbody tr:hover { background:#F5F7FF; }
+tbody td { padding:8px 12px; font-size:12px; color:var(--text); }
+
+.pill { display:inline-block; padding:2px 10px; border-radius:20px; font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.3px; }
+.pill-livre   { background:#D1FAE5; color:#065F46; }
+.pill-encours { background:#FEF3C7; color:#92400E; }
+.pill-echec   { background:#FEE2E2; color:#991B1B; }
+.pill-paye    { background:#D1FAE5; color:#065F46; }
+.pill-attente { background:#E0E7FF; color:#3730A3; }
+
+.montant-cell { font-family:'DM Mono',monospace; font-size:12px; font-weight:600; color:var(--navy); }
+.bon-cell { font-family:'DM Mono',monospace; font-size:10px; color:var(--muted); font-weight:500; }
+
+.del-btn { background:none; border:none; color:var(--border); font-size:13px; cursor:pointer; transition:color .2s; padding:2px; }
+.del-btn:hover { color:var(--red); }
+
+.statut-select {
+  border:none; border-radius:20px; padding:3px 8px;
+  font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.3px;
+  cursor:pointer; outline:none; font-family:'DM Sans',sans-serif;
+  appearance:none; -webkit-appearance:none; text-align:center;
+}
+.statut-livre   { background:#D1FAE5; color:#065F46; }
+.statut-encours { background:#FEF3C7; color:#92400E; }
+.statut-echec   { background:#FEE2E2; color:#991B1B; }
+
+.empty-state { text-align:center; padding:40px; color:var(--muted); }
+.empty-icon { font-size:44px; margin-bottom:8px; }
+.empty-text { font-size:14px; font-weight:600; }
+
+/* ══ LIVREURS GRID ══ */
+.livreurs-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; margin-top:14px; }
+.livreur-card {
+  background:white; border-radius:12px; padding:16px;
+  border-left:4px solid var(--navy); box-shadow:var(--shadow); transition:transform .2s;
+}
+.livreur-card:hover { transform:translateY(-2px); }
+.livreur-name { font-family:'Bebas Neue',sans-serif; font-size:17px; color:var(--navy); letter-spacing:1px; margin-bottom:10px; }
+.livreur-stat { font-size:11px; color:var(--muted); margin-bottom:3px; }
+.livreur-stat strong { color:var(--text); }
+.progress-bar { height:5px; background:var(--border); border-radius:3px; margin-top:8px; overflow:hidden; }
+.progress-fill { height:100%; background:linear-gradient(90deg,var(--green),#4ade80); border-radius:3px; transition:width .5s; }
+
+/* ══ CLIENTS PAGE ══ */
+.clients-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; margin-top:16px; }
+.client-card {
+  background:white; border-radius:12px; padding:18px;
+  border-top:3px solid var(--navy); box-shadow:var(--shadow); position:relative;
+}
+.client-card-name { font-family:'Bebas Neue',sans-serif; font-size:20px; color:var(--navy); letter-spacing:1px; margin-bottom:6px; }
+.client-card-info { font-size:12px; color:var(--muted); margin-bottom:3px; }
+.client-card-info strong { color:var(--text); }
+.client-card-actions { display:flex; gap:6px; margin-top:12px; }
+.btn-sm {
+  padding:5px 12px; border-radius:6px; font-size:11px; font-weight:700;
+  cursor:pointer; border:none; font-family:'DM Sans',sans-serif; transition:all .2s;
+}
+.btn-sm-navy { background:var(--navy); color:white; }
+.btn-sm-navy:hover { background:var(--navy3); }
+.btn-sm-red { background:#FEE2E2; color:var(--red); }
+.btn-sm-red:hover { background:var(--red); color:white; }
+.btn-sm-green { background:#D1FAE5; color:var(--green2); }
+.btn-sm-green:hover { background:var(--green); color:white; }
+
+/* ══ DASHBOARD ══ */
+.dash-grid { display:grid; grid-template-columns:2fr 1fr; gap:16px; margin-top:16px; }
+.dash-card { background:white; border-radius:12px; padding:18px; box-shadow:var(--shadow); }
+.dash-title { font-family:'Bebas Neue',sans-serif; font-size:16px; color:var(--navy); letter-spacing:1.5px; margin-bottom:14px; border-left:3px solid var(--red); padding-left:8px; }
+.chart-bars { display:flex; align-items:flex-end; gap:6px; height:120px; }
+.bar-wrap { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; }
+.bar { width:100%; border-radius:4px 4px 0 0; transition:height .5s; min-height:3px; }
+.bar-label { font-size:9px; color:var(--muted); font-weight:600; text-align:center; }
+.bar-val { font-size:9px; color:var(--navy); font-weight:700; }
+.top-list { display:flex; flex-direction:column; gap:8px; }
+.top-item { display:flex; align-items:center; gap:10px; }
+.top-rank { font-family:'Bebas Neue',sans-serif; font-size:20px; color:var(--border); width:20px; }
+.top-rank.gold { color:var(--gold); }
+.top-rank.silver { color:#94A3B8; }
+.top-rank.bronze { color:#CD7F32; }
+.top-name { flex:1; font-size:12px; font-weight:600; color:var(--text); }
+.top-val { font-family:'DM Mono',monospace; font-size:11px; color:var(--navy); font-weight:600; }
+
+/* ══ FACTURE PAGE ══ */
+.facture-controls {
+  background:white; border-radius:12px; padding:16px 18px;
+  margin-bottom:14px; box-shadow:var(--shadow);
+  display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;
+}
+.btn-facture { padding:9px 20px; border:none; border-radius:8px; font-family:'DM Sans',sans-serif; font-weight:700; font-size:13px; cursor:pointer; transition:all .2s; }
+.btn-generer { background:var(--navy); color:white; }
+.btn-generer:hover { background:var(--red); transform:translateY(-1px); }
+.btn-imprimer { background:var(--green); color:white; }
+.btn-imprimer:hover { background:var(--green2); }
+.btn-whatsapp { background:#25D366; color:white; }
+.btn-whatsapp:hover { background:#1da851; }
+
+/* ══ FACTURE PREVIEW ══ */
+.facture-preview { background:white; border-radius:12px; overflow:hidden; box-shadow:var(--shadow-lg); display:none; }
+.fac-header { background:linear-gradient(135deg, var(--navy) 0%, var(--navy3) 100%); padding:22px 30px 18px; }
+.fac-stripe { height:4px; background:linear-gradient(90deg,var(--red) 33%,var(--gold) 33% 66%,var(--green) 66%); margin-bottom:18px; border-radius:2px; }
+.fac-header-top { display:flex; justify-content:space-between; align-items:flex-start; }
+.fac-logo-s { font-family:'Bebas Neue',sans-serif; font-size:50px; color:var(--red); line-height:1; text-shadow:0 0 30px rgba(232,48,42,.4); }
+.fac-logo-area { display:flex; align-items:center; gap:10px; }
+.fac-logo-text { display:flex; flex-direction:column; line-height:1.1; }
+.fac-express { font-family:'Bebas Neue',sans-serif; font-size:19px; color:white; letter-spacing:2px; }
+.fac-medical { font-family:'Bebas Neue',sans-serif; font-size:15px; color:var(--green); letter-spacing:2px; }
+.fac-sub { font-size:8px; color:#4A5580; letter-spacing:1px; margin-top:2px; }
+.fac-cross { width:36px;height:36px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;color:white;font-weight:900;border:2px solid rgba(255,255,255,.3); }
+.fac-title-area { text-align:right; }
+.fac-title { font-family:'Bebas Neue',sans-serif; font-size:38px; color:var(--gold); letter-spacing:4px; }
+.fac-num { font-family:'DM Mono',monospace; font-size:13px; color:white; margin-top:4px; border:1.5px solid var(--green); padding:2px 10px; border-radius:4px; display:inline-block; }
+.fac-meta { display:flex; gap:28px; margin-top:14px; border-top:1px solid rgba(255,255,255,.1); padding-top:12px; }
+.fac-meta-item .meta-lbl { font-size:8px; color:#4A5580; text-transform:uppercase; letter-spacing:1px; margin-bottom:2px; }
+.fac-meta-item .meta-val { font-size:12px; color:white; font-weight:600; }
+.fac-body { padding:24px 30px; }
+.fac-parties { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:20px; }
+.fac-partie { border:1.5px solid var(--border); border-radius:8px; overflow:hidden; }
+.fac-partie-hd { padding:6px 12px; font-family:'Bebas Neue',sans-serif; font-size:12px; letter-spacing:1px; }
+.fac-emetteur .fac-partie-hd { background:var(--navy); color:white; }
+.fac-client .fac-partie-hd { background:var(--red); color:white; }
+.fac-partie-body { padding:10px 12px; background:#F8FAFC; }
+.fac-row { margin-bottom:4px; }
+.fac-rl { font-size:8px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; font-weight:700; }
+.fac-rv { font-size:12px; color:var(--text); font-weight:600; }
+.fac-lines-title { font-family:'Bebas Neue',sans-serif; font-size:14px; color:var(--navy); letter-spacing:1.5px; border-left:3px solid var(--red); padding-left:8px; margin-bottom:8px; }
+table.fac-table { width:100%; border-collapse:collapse; font-size:11px; margin-bottom:18px; }
+table.fac-table thead th { background:var(--navy); color:white; padding:7px 10px; text-align:left; font-size:8px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; }
+table.fac-table thead th:last-child { text-align:right; }
+table.fac-table tbody td { padding:6px 10px; border-bottom:1px solid var(--border); }
+table.fac-table tbody tr:nth-child(even) td { background:#F8FAFC; }
+table.fac-table .right { text-align:right; font-family:'DM Mono',monospace; font-weight:600; }
+.fac-totaux { display:flex; justify-content:flex-end; margin-bottom:20px; }
+.fac-totaux-box { width:260px; border:1.5px solid var(--border); border-radius:8px; overflow:hidden; }
+.fac-total-row { display:flex; justify-content:space-between; padding:7px 12px; border-bottom:1px solid var(--border); font-size:12px; }
+.fac-total-row:last-child { border:none; }
+.fac-total-lbl { color:var(--muted); }
+.fac-total-val { font-weight:700; color:var(--text); font-family:'DM Mono',monospace; }
+.fac-total-row.final { background:var(--navy); }
+.fac-total-row.final .fac-total-lbl { font-family:'Bebas Neue',sans-serif; font-size:15px; color:white; letter-spacing:1px; }
+.fac-total-row.final .fac-total-val { font-family:'Bebas Neue',sans-serif; font-size:20px; color:var(--gold); }
+.fac-paiement { background:#F0FDF4; border:1.5px solid #BBF7D0; border-radius:8px; padding:10px 14px; margin-bottom:16px; }
+.fac-paiement-title { font-family:'Bebas Neue',sans-serif; font-size:12px; color:var(--green); letter-spacing:1px; margin-bottom:6px; }
+.fac-paiement-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; font-size:11px; }
+.fac-pm { color:var(--muted); } .fac-pm strong { color:var(--text); display:block; }
+.fac-statut-paiement { display:inline-flex; align-items:center; gap:6px; padding:4px 14px; border-radius:20px; font-size:11px; font-weight:700; margin-bottom:16px; }
+.fac-statut-paiement.paye { background:#D1FAE5; color:#065F46; border:1.5px solid #6EE7B7; }
+.fac-statut-paiement.attente { background:#E0E7FF; color:#3730A3; border:1.5px solid #A5B4FC; }
+.fac-sigs { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px; }
+.fac-sig { border:1.5px solid var(--border); border-radius:8px; padding:12px; text-align:center; }
+.fac-sig-title { font-size:8px; font-weight:700; color:var(--navy); text-transform:uppercase; letter-spacing:.5px; margin-bottom:30px; }
+.fac-sig-line { border-bottom:1.5px solid var(--border); margin-bottom:4px; }
+.fac-sig-sub { font-size:9px; color:var(--muted); }
+.fac-mention { background:var(--gray); border-radius:8px; padding:8px 12px; font-size:8px; color:var(--muted); text-align:center; line-height:1.6; }
+.fac-footer { background:linear-gradient(135deg,var(--navy),var(--navy3)); padding:12px 30px; display:flex; justify-content:space-between; align-items:center; }
+.fac-footer-contact { font-size:12px; color:rgba(255,255,255,.7); }
+.fac-footer-slogan { font-family:'Bebas Neue',sans-serif; font-size:14px; color:var(--gold); letter-spacing:2px; }
+
+/* ══ PRINT ══ */
+@media print {
+  .topbar, .facture-controls, #page-livraisons, #page-clients, #page-dashboard, .nav-tabs, #toast { display:none !important; }
+  #page-facture { display:block !important; padding:0 !important; }
+  .facture-preview { display:block !important; box-shadow:none; }
+  body { background:white; }
+}
+
+/* ══ MODAL ══ */
+.modal-overlay {
+  position:fixed; inset:0; background:rgba(11,31,74,.6);
+  backdrop-filter:blur(4px); z-index:500;
+  display:none; align-items:center; justify-content:center;
+}
+.modal-overlay.open { display:flex; }
+.modal {
+  background:white; border-radius:16px; padding:28px; width:480px;
+  box-shadow:0 20px 60px rgba(0,0,0,.3); position:relative;
+  animation: slideUp .25s ease;
+}
+@keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+.modal-title { font-family:'Bebas Neue',sans-serif; font-size:22px; color:var(--navy); letter-spacing:1.5px; margin-bottom:18px; }
+.modal-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
+.modal-actions { display:flex; gap:8px; justify-content:flex-end; }
+.btn-cancel { padding:8px 18px; border-radius:8px; border:1.5px solid var(--border); background:transparent; font-family:'DM Sans',sans-serif; font-weight:600; font-size:13px; cursor:pointer; }
+.btn-cancel:hover { background:var(--gray); }
+.btn-save { padding:8px 22px; border-radius:8px; border:none; background:var(--navy); color:white; font-family:'DM Sans',sans-serif; font-weight:700; font-size:13px; cursor:pointer; }
+.btn-save:hover { background:var(--red); }
+.close-btn { position:absolute; top:16px; right:16px; background:none; border:none; font-size:18px; cursor:pointer; color:var(--muted); }
+
+/* ══ SECTION HEADERS ══ */
+.section-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.section-title { font-family:'Bebas Neue',sans-serif; font-size:20px; color:var(--navy); letter-spacing:2px; }
+.btn-primary { padding:8px 18px; border-radius:8px; background:var(--navy); color:white; border:none; font-family:'DM Sans',sans-serif; font-weight:700; font-size:12px; cursor:pointer; transition:all .2s; }
+.btn-primary:hover { background:var(--red); }
+
+/* ══ DEPENSES ══ */
+.dep-cats { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:10px; margin-bottom:18px; }
+.dep-cat-card {
+  background:white; border-radius:12px; padding:14px 16px;
+  border-left:4px solid var(--muted); box-shadow:var(--shadow);
+  cursor:pointer; transition:all .2s;
+}
+.dep-cat-card:hover { transform:translateY(-2px); box-shadow:var(--shadow-lg); }
+.dep-cat-card.active { border-color:var(--navy); background:#F0F4FF; }
+.dep-cat-icon { font-size:22px; margin-bottom:4px; }
+.dep-cat-name { font-size:11px; font-weight:700; color:var(--text); }
+.dep-cat-total { font-family:'DM Mono',monospace; font-size:13px; color:var(--navy); font-weight:600; margin-top:2px; }
+
+.bilan-box {
+  background:linear-gradient(135deg,var(--navy),var(--navy3));
+  border-radius:14px; padding:20px 24px; margin-bottom:18px;
+  display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:16px;
+  box-shadow:var(--shadow-lg);
+}
+.bilan-item { text-align:center; }
+.bilan-lbl { font-size:9px; color:rgba(255,255,255,.5); text-transform:uppercase; letter-spacing:1px; margin-bottom:4px; }
+.bilan-val { font-family:'Bebas Neue',sans-serif; font-size:26px; color:white; }
+.bilan-val.green { color:#4ade80; }
+.bilan-val.red   { color:#f87171; }
+.bilan-val.gold  { color:var(--gold); }
+.bilan-sep { width:1px; background:rgba(255,255,255,.1); }
+
+/* ═══ GUIDE D'UTILISATION ═══ */
+.guide-overlay { position:fixed; inset:0; z-index:9000; display:none; }
+.guide-overlay.active { display:block; }
+.guide-bg { position:absolute; inset:0; background:rgba(11,31,74,.75); }
+.g-tooltip { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:88%; max-width:360px; background:white; border-radius:18px; padding:24px 22px 20px; box-shadow:0 20px 60px rgba(0,0,0,.4); opacity:0; transition:opacity .25s; font-family:'DM Sans',sans-serif; }
+.g-tooltip.show { opacity:1; }
+.g-close { position:absolute; top:10px; right:12px; width:32px; height:32px; border-radius:50%; border:none; background:var(--gray); color:#555; font-size:16px; font-weight:700; cursor:pointer; line-height:1; }
+.g-step { font-size:11px; font-weight:700; color:var(--red); letter-spacing:1px; text-transform:uppercase; }
+.g-icon { font-size:40px; margin:6px 0; }
+.g-title { font-size:19px; font-weight:800; color:var(--navy); margin-bottom:8px; }
+.g-body { font-size:14px; color:#444; line-height:1.55; margin-bottom:18px; }
+.g-nav { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+.g-skip { background:none; border:none; color:var(--muted); font-size:13px; font-weight:600; cursor:pointer; }
+.g-next { background:var(--navy); color:white; border:none; padding:11px 22px; border-radius:11px; font-size:14px; font-weight:700; cursor:pointer; font-family:'DM Sans',sans-serif; }
+.g-next:hover { background:var(--red); }
+.g-dots { display:flex; gap:6px; justify-content:center; margin-top:16px; }
+.g-dot { width:7px; height:7px; border-radius:50%; background:var(--border); }
+.g-dot.active { background:var(--red); width:20px; border-radius:4px; }
+</style>
+</head>
+<body>
+
+<!-- GUIDE D'UTILISATION -->
+<div class="guide-overlay" id="guide-overlay">
+  <div class="guide-bg" onclick="endGuide()"></div>
+  <div class="g-tooltip" id="g-tooltip">
+    <button class="g-close" onclick="endGuide()" aria-label="Fermer">✕</button>
+    <div class="g-step" id="g-step">Étape 1 / 6</div>
+    <div class="g-icon" id="g-icon">👋</div>
+    <div class="g-title" id="g-title">Bienvenue !</div>
+    <div class="g-body" id="g-body"></div>
+    <div class="g-nav">
+      <button class="g-skip" onclick="endGuide()">Passer</button>
+      <button class="g-next" id="g-next" onclick="nextGuideStep()">Suivant →</button>
+    </div>
+    <div class="g-dots" id="g-dots"></div>
+  </div>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-s">S</div>
+    <div>
+      <div class="brand-text">
+        <span class="brand-express">EXPRESS</span>
+        <span class="brand-medical">MEDICAL</span>
+      </div>
+      <div class="brand-sub">Logistique · Livraison · Bamako</div>
+    </div>
+    <div class="brand-dot"></div>
+  </div>
+
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="switchPage('livraisons',this)"><span class="nt-ico">🏍️</span><span class="nt-lbl">Livraisons</span></button>
+    <button class="nav-tab" onclick="switchPage('clients',this)"><span class="nt-ico">🏢</span><span class="nt-lbl">Clients</span></button>
+    <button class="nav-tab" onclick="switchPage('depenses',this)"><span class="nt-ico">💸</span><span class="nt-lbl">Dépenses</span></button>
+    <button class="nav-tab" onclick="switchPage('dashboard',this)"><span class="nt-ico">📊</span><span class="nt-lbl">Tableau</span></button>
+    <button class="nav-tab" onclick="switchPage('facture',this)"><span class="nt-ico">📄</span><span class="nt-lbl">Factures</span></button>
+    <button class="nav-tab" onclick="startGuide()" style="color:var(--gold);"><span class="nt-ico">❓</span><span class="nt-lbl">Guide</span></button>
+  </div>
+
+  <div class="topbar-right">
+    <div class="month-selector">
+      <button class="month-btn" onclick="changeMonth(-1)">‹</button>
+      <div class="month-label" id="monthLabel">—</div>
+      <button class="month-btn" onclick="changeMonth(1)">›</button>
+    </div>
+    <span id="sync-badge" style="font-size:11px;font-weight:700;padding:5px 12px;border-radius:20px;background:rgba(39,174,96,.15);color:#27AE60;opacity:0.4;transition:all .3s;white-space:nowrap;">☁️ Cloud</span>
+    <button class="btn-data" onclick="exporterDonnees()">💾 Exporter</button>
+    <label class="btn-data btn-import">
+      📂 Restaurer
+      <input type="file" accept=".json" onchange="importerDonnees(event)" style="display:none;">
+    </label>
+  </div>
+</div>
+
+<div id="toast" style="position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--navy);color:white;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.3);transform:translateY(80px);opacity:0;transition:all .3s ease;border-left:4px solid var(--green);"></div>
+
+<!-- ══════════════ PAGE LIVRAISONS ══════════════ -->
+<div class="page active" id="page-livraisons">
+
+  <div class="stats-row" style="grid-template-columns:repeat(6,1fr);">
+    <div class="stat-card">
+      <div class="stat-label">🏍️ Total Courses</div>
+      <div class="stat-val" id="s-total">0</div>
+      <div class="stat-unit">ce mois</div>
+    </div>
+    <div class="stat-card c-green">
+      <div class="stat-label">✅ Livrées</div>
+      <div class="stat-val" id="s-livrees">0</div>
+      <div class="stat-unit">succès</div>
+    </div>
+    <div class="stat-card c-gold">
+      <div class="stat-label">💰 Chiffre d'Affaires</div>
+      <div class="stat-val" id="s-ca">0</div>
+      <div class="stat-unit">FCFA</div>
+    </div>
+    <div class="stat-card c-red">
+      <div class="stat-label">❌ Échecs</div>
+      <div class="stat-val" id="s-echecs">0</div>
+      <div class="stat-unit">non livrées</div>
+    </div>
+    <div class="stat-card c-navy">
+      <div class="stat-label">📈 Taux de Réussite</div>
+      <div class="stat-val" id="s-taux">—</div>
+      <div class="stat-unit">% de livraisons ok</div>
+    </div>
+    <div class="stat-card" style="border-color:#7C3AED;">
+      <div class="stat-label">💎 Bénéfice Net</div>
+      <div class="stat-val" id="s-benefice" style="color:#7C3AED;">0</div>
+      <div class="stat-unit">après dépenses</div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-title">➕ Enregistrer une course</div>
+    <div class="form-row">
+      <div class="f-group">
+        <label class="f-label">Date</label>
+        <input type="date" class="f-input" id="f-date">
+      </div>
+      <div class="f-group">
+        <label class="f-label">Client (expéditeur)</label>
+        <input type="text" class="f-input" id="f-client" placeholder="Pharmacie Alpha..." list="clients-datalist">
+        <datalist id="clients-datalist"></datalist>
+      </div>
+      <div class="f-group">
+        <label class="f-label">Destination</label>
+        <input type="text" class="f-input" id="f-dest" list="dest-datalist" placeholder="ACI 2000, Sogoniko..." onchange="autoZoneFromDest()" oninput="autoZoneFromDest()">
+        <datalist id="dest-datalist"></datalist>
+      </div>
+      <div class="f-group">
+        <label class="f-label">Livreur</label>
+        <select class="f-select" id="f-livreur">
+          <option value="">— Choisir —</option>
+          <option>Demba</option>
+          <option>Mamadou</option>
+          <option>Amadou</option>
+          <option>Aboubacar</option>
+          <option>Harouna</option>
+        </select>
+      </div>
+      <div class="f-group">
+        <label class="f-label">Zone tarifaire</label>
+        <select class="f-select" id="f-zone" onchange="autoMontant()">
+          <option value="1000">Zone 1 — 1 000 F</option>
+          <option value="1500">Zone 2 — 1 500 F</option>
+          <option value="2000">Zone 3 — 2 000 F</option>
+          <option value="2500">Zone 4 — 2 500 F</option>
+          <option value="3500">Zone 5 — 3 500 F</option>
+        </select>
+      </div>
+      <div class="f-group">
+        <label class="f-label">Montant (F)</label>
+        <input type="number" class="f-input" id="f-montant" value="1000">
+      </div>
+      <div class="f-group">
+        <label class="f-label">Statut</label>
+        <select class="f-select" id="f-statut">
+          <option value="livre">✅ Livré</option>
+          <option value="encours">🟡 En cours</option>
+          <option value="echec">❌ Échec</option>
+        </select>
+      </div>
+      <div class="f-group f-wide">
+        <label class="f-label">Suppléments</label>
+        <div class="supplements">
+          <label class="sup-chk"><input type="checkbox" id="sup-urgent" onchange="autoMontant()"> 🚨 Urgent (+500)</label>
+          <label class="sup-chk"><input type="checkbox" id="sup-lourd" onchange="autoMontant()"> 📦 Lourd (+1000)</label>
+          <label class="sup-chk"><input type="checkbox" id="sup-nuit" onchange="autoMontant()"> 🌙 Nuit (+500)</label>
+          <label class="sup-chk"><input type="checkbox" id="sup-pharma" onchange="autoMontant()"> 💊 PharmaCare (+1500)</label>
+        </div>
+      </div>
+      <div class="f-group f-wide">
+        <button class="btn-ajouter" onclick="addCourse()">+ Ajouter</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card" id="lot-card">
+    <div class="form-title">⚡ Saisie rapide par lot (plusieurs courses d'un coup)</div>
+    <div class="f-group" style="margin-bottom:12px;">
+      <label class="f-label">Date des courses (pour tout le lot)</label>
+      <input type="date" class="f-input" id="lot-date" style="max-width:220px;">
+    </div>
+
+    <div class="f-group" style="margin-bottom:14px;">
+      <label class="f-label">📸 Photo du cahier (aide-mémoire — à relire vous-même, l'écriture manuscrite n'est pas lue à 100%)</label>
+      <input type="file" accept="image/*" capture="environment" id="lot-photo-input" onchange="ocrLotPhoto()">
+      <div id="lot-ocr-status" style="font-size:12px;color:#6B7280;margin-top:6px;"></div>
+      <textarea id="lot-ocr-text" class="f-input" rows="4" placeholder="Le texte reconnu dans la photo apparaîtra ici pour vous aider à recopier vite — vérifiez-le, il peut contenir des erreurs." style="margin-top:8px;font-family:'DM Mono',monospace;font-size:12px;"></textarea>
+    </div>
+
+    <table id="lot-table" style="width:100%;border-collapse:collapse;margin-bottom:10px;">
+      <thead>
+        <tr style="text-align:left;font-size:11px;color:#6B7280;text-transform:uppercase;">
+          <th style="padding:6px 4px;">Client</th>
+          <th style="padding:6px 4px;">Destination</th>
+          <th style="padding:6px 4px;">Livreur</th>
+          <th style="padding:6px 4px;">Montant (F)</th>
+          <th style="padding:6px 4px;">Statut</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="lot-tbody"></tbody>
+    </table>
+
+    <div class="f-group f-wide" style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn-ajouter" type="button" onclick="addLotRow()" style="background:#fff;color:var(--navy,#0B1F4A);border:2px solid var(--navy,#0B1F4A);">+ Ligne</button>
+      <button class="btn-ajouter" type="button" onclick="saveLotAll()">✅ Enregistrer toutes les lignes</button>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-head">
+      <div class="table-head-title">COURSES DU MOIS</div>
+      <div class="badge" id="badge-count">0 courses</div>
+    </div>
+    <div class="table-filters">
+      <input class="filter-input" id="filtre-search" placeholder="🔍 Rechercher client, destination..." oninput="renderAll()" style="width:260px;">
+      <select class="filter-input" id="filtre-livreur" onchange="renderAll()">
+        <option value="">Tous les livreurs</option>
+        <option>Demba</option><option>Mamadou</option>
+        <option>Amadou</option><option>Aboubacar</option><option>Harouna</option>
+      </select>
+      <select class="filter-input" id="filtre-statut" onchange="renderAll()">
+        <option value="">Tous les statuts</option>
+        <option value="livre">✅ Livré</option>
+        <option value="encours">🟡 En cours</option>
+        <option value="echec">❌ Échec</option>
+      </select>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Bon N°</th>
+          <th>Date</th>
+          <th>Client</th>
+          <th>Destination</th>
+          <th>Livreur</th>
+          <th>Zone</th>
+          <th>Montant</th>
+          <th>Statut</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <div style="margin-top:18px;">
+    <div class="section-title">🏍️ PERFORMANCE PAR LIVREUR</div>
+    <div class="livreurs-grid" id="livreurs-grid">
+      <div style="color:var(--muted);font-size:13px;">Ajoutez des courses pour voir les performances.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════ PAGE CLIENTS ══════════════ -->
+<div class="page" id="page-clients">
+  <div class="section-header">
+    <div class="section-title">🏢 RÉPERTOIRE CLIENTS</div>
+    <button class="btn-primary" onclick="ouvrirModalClient()">+ Nouveau Client</button>
+  </div>
+  <div class="clients-grid" id="clients-grid">
+    <div style="color:var(--muted);font-size:13px;">Aucun client enregistré.</div>
+  </div>
+</div>
+
+<!-- ══════════════ PAGE DASHBOARD ══════════════ -->
+<div class="page" id="page-dashboard">
+  <div class="section-title" style="margin-bottom:16px;">📊 TABLEAU DE BORD — <span id="dash-annee"></span></div>
+  <div class="stats-row" id="dash-stats-row">
+    <div class="stat-card"><div class="stat-label">Total Courses Annuel</div><div class="stat-val" id="d-total">0</div><div class="stat-unit">livraisons</div></div>
+    <div class="stat-card c-green"><div class="stat-label">CA Annuel</div><div class="stat-val" id="d-ca">0</div><div class="stat-unit">FCFA</div></div>
+    <div class="stat-card c-gold"><div class="stat-label">Meilleur Mois</div><div class="stat-val" id="d-best-month">—</div><div class="stat-unit">mois record</div></div>
+    <div class="stat-card c-navy"><div class="stat-label">Taux Réussite Global</div><div class="stat-val" id="d-taux">—</div><div class="stat-unit">% succès</div></div>
+    <div class="stat-card c-red"><div class="stat-label">Clients Actifs</div><div class="stat-val" id="d-clients">0</div><div class="stat-unit">ce mois</div></div>
+  </div>
+  <div class="dash-grid">
+    <div class="dash-card">
+      <div class="dash-title">📈 ÉVOLUTION MENSUELLE (CA en FCFA)</div>
+      <div class="chart-bars" id="chart-bars"></div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-title">🏆 TOP LIVREURS (ce mois)</div>
+      <div class="top-list" id="top-livreurs"></div>
+    </div>
+  </div>
+  <div class="dash-grid" style="margin-top:16px;">
+    <div class="dash-card">
+      <div class="dash-title">👥 TOP CLIENTS (ce mois)</div>
+      <div class="top-list" id="top-clients"></div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-title">📦 RÉPARTITION PAR ZONE</div>
+      <div id="zone-stats" style="display:flex;flex-direction:column;gap:8px;margin-top:4px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ PAGE DEPENSES ══════════════ -->
+<div class="page" id="page-depenses">
+
+  <!-- BILAN DU MOIS -->
+  <div class="bilan-box">
+    <div class="bilan-item">
+      <div class="bilan-lbl">💰 Chiffre d'Affaires</div>
+      <div class="bilan-val gold" id="b-ca">0</div>
+      <div style="font-size:9px;color:rgba(255,255,255,.4);margin-top:2px;">FCFA</div>
+    </div>
+    <div class="bilan-sep"></div>
+    <div class="bilan-item">
+      <div class="bilan-lbl">💸 Total Dépenses</div>
+      <div class="bilan-val red" id="b-dep">0</div>
+      <div style="font-size:9px;color:rgba(255,255,255,.4);margin-top:2px;">FCFA</div>
+    </div>
+    <div class="bilan-sep"></div>
+    <div class="bilan-item">
+      <div class="bilan-lbl">💎 Bénéfice Net</div>
+      <div class="bilan-val green" id="b-ben">0</div>
+      <div style="font-size:9px;color:rgba(255,255,255,.4);margin-top:2px;">FCFA</div>
+    </div>
+    <div class="bilan-sep"></div>
+    <div class="bilan-item">
+      <div class="bilan-lbl">📊 Marge</div>
+      <div class="bilan-val" id="b-marge">—</div>
+      <div style="font-size:9px;color:rgba(255,255,255,.4);margin-top:2px;">% du CA</div>
+    </div>
+  </div>
+
+  <!-- CATEGORIES RAPIDES -->
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--navy);letter-spacing:1.5px;margin-bottom:10px;">⚡ DÉPENSES PAR CATÉGORIE</div>
+  <div class="dep-cats" id="dep-cats-summary"></div>
+
+  <!-- FORMULAIRE -->
+  <div class="form-card">
+    <div class="form-title">➕ Enregistrer une dépense</div>
+    <div class="form-row">
+      <div class="f-group">
+        <label class="f-label">Date</label>
+        <input type="date" class="f-input" id="dep-date">
+      </div>
+      <div class="f-group">
+        <label class="f-label">Catégorie</label>
+        <select class="f-select" id="dep-categorie">
+          <option value="Essence">⛽ Essence</option>
+          <option value="Salaire">👷 Salaire livreur</option>
+          <option value="Téléphone">📱 Unités / Téléphone</option>
+          <option value="Nourriture">🍽️ Nourriture</option>
+          <option value="Réparation">🔧 Réparation / Moto</option>
+          <option value="Loyer">🏠 Loyer / Bureau</option>
+          <option value="Autre">📦 Autre</option>
+        </select>
+      </div>
+      <div class="f-group">
+        <label class="f-label">Description</label>
+        <input type="text" class="f-input" id="dep-desc" placeholder="Ex: Essence Demba...">
+      </div>
+      <div class="f-group">
+        <label class="f-label">Montant (F)</label>
+        <input type="number" class="f-input" id="dep-montant" placeholder="5000">
+      </div>
+      <div class="f-group f-wide">
+        <button class="btn-ajouter" onclick="addDepense()">+ Ajouter</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLE DEPENSES -->
+  <div class="table-card">
+    <div class="table-head">
+      <div class="table-head-title">DÉPENSES DU MOIS</div>
+      <div class="badge" id="badge-dep-count">0 dépenses</div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Catégorie</th>
+          <th>Description</th>
+          <th style="text-align:right">Montant</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="dep-tbody"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- ══════════════ PAGE FACTURE ══════════════ -->
+<div class="page" id="page-facture">
+
+  <div class="facture-controls">
+    <div class="f-group">
+      <label class="f-label">🎯 Client</label>
+      <select class="f-select" id="fac-filtre-client" style="height:36px;min-width:200px;" onchange="autoFillClient()">
+        <option value="">— Tous les clients —</option>
+      </select>
+    </div>
+    <div class="f-group">
+      <label class="f-label">📅 Du</label>
+      <input type="date" class="f-input" id="fac-date-debut" style="height:36px;">
+    </div>
+    <div class="f-group">
+      <label class="f-label">📅 Au</label>
+      <input type="date" class="f-input" id="fac-date-fin" style="height:36px;">
+    </div>
+    <div class="f-group">
+      <label class="f-label">💳 Statut paiement</label>
+      <select class="f-select" id="fac-statut-paiement" style="height:36px;">
+        <option value="attente">⏳ En attente</option>
+        <option value="paye">✅ Payé</option>
+      </select>
+    </div>
+    <button class="btn-facture btn-generer" onclick="genererFacture()">⚡ Générer la facture</button>
+    <button class="btn-facture btn-imprimer" onclick="window.print()">🖨️ Imprimer / PDF</button>
+    <button class="btn-facture btn-whatsapp" onclick="envoyerFactureWhatsApp()">📲 Envoyer par WhatsApp</button>
+  </div>
+
+  <div style="background:white;border-radius:12px;padding:16px 18px;margin-bottom:14px;box-shadow:var(--shadow);">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--navy);letter-spacing:1.5px;margin-bottom:10px;">📋 INFORMATIONS CLIENT À FACTURER</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:10px;">
+      <div class="f-group"><label class="f-label">Nom / Structure</label><input type="text" class="f-input" id="cli-nom" placeholder="Pharmacie Alpha"></div>
+      <div class="f-group"><label class="f-label">Adresse</label><input type="text" class="f-input" id="cli-adresse" placeholder="ACI 2000, Bamako"></div>
+      <div class="f-group"><label class="f-label">Téléphone</label><input type="text" class="f-input" id="cli-tel" placeholder="+223 XX XX XX XX"></div>
+      <div class="f-group"><label class="f-label">Responsable</label><input type="text" class="f-input" id="cli-contact" placeholder="Nom du responsable"></div>
+      <div class="f-group"><label class="f-label">Votre nom (gérant)</label><input type="text" class="f-input" id="gerant-nom" placeholder="Dr. Votre Nom"></div>
+    </div>
+  </div>
+
+  <!-- FACTURE PREVIEW -->
+  <div class="facture-preview" id="facture-preview">
+    <div class="fac-header">
+      <div class="fac-stripe"></div>
+      <div class="fac-header-top">
+        <div class="fac-logo-area">
+          <div class="fac-logo-s">S</div>
+          <div>
+            <div class="fac-logo-text">
+              <span class="fac-express">EXPRESS</span>
+              <span class="fac-medical">MEDICAL</span>
+            </div>
+            <div class="fac-sub">LOGISTIQUE ET LIVRAISON MÉDICALE</div>
+          </div>
+          <div class="fac-cross">+</div>
+        </div>
+        <div class="fac-title-area">
+          <div class="fac-title">FACTURE</div>
+          <div class="fac-num" id="fac-num">FAC-2026-001</div>
+        </div>
+      </div>
+      <div class="fac-meta">
+        <div class="fac-meta-item"><div class="meta-lbl">Date d'émission</div><div class="meta-val" id="fac-date-emission">—</div></div>
+        <div class="fac-meta-item"><div class="meta-lbl">Période facturée</div><div class="meta-val" id="fac-periode">—</div></div>
+        <div class="fac-meta-item"><div class="meta-lbl">Échéance</div><div class="meta-val">À réception</div></div>
+        <div class="fac-meta-item"><div class="meta-lbl">Total courses</div><div class="meta-val" id="fac-nb-courses">—</div></div>
+      </div>
+    </div>
+    <div class="fac-body">
+      <div id="fac-statut-badge"></div>
+      <div class="fac-parties">
+        <div class="fac-partie fac-emetteur">
+          <div class="fac-partie-hd">📤 Émetteur</div>
+          <div class="fac-partie-body">
+            <div class="fac-row"><div class="fac-rl">Société</div><div class="fac-rv">S EXPRESS MEDICAL</div></div>
+            <div class="fac-row"><div class="fac-rl">Activité</div><div class="fac-rv" style="font-size:11px;">Logistique & Livraison Médicale</div></div>
+            <div class="fac-row"><div class="fac-rl">Adresse</div><div class="fac-rv" style="font-size:11px;">Bamako, Mali</div></div>
+            <div class="fac-row"><div class="fac-rl">Téléphone</div><div class="fac-rv">90042400</div></div>
+            <div class="fac-row"><div class="fac-rl">Gérant</div><div class="fac-rv" id="fac-gerant">—</div></div>
+          </div>
+        </div>
+        <div class="fac-partie fac-client">
+          <div class="fac-partie-hd">📥 Facturé à</div>
+          <div class="fac-partie-body">
+            <div class="fac-row"><div class="fac-rl">Nom / Structure</div><div class="fac-rv" id="fac-cli-nom">—</div></div>
+            <div class="fac-row"><div class="fac-rl">Adresse</div><div class="fac-rv" id="fac-cli-adresse">—</div></div>
+            <div class="fac-row"><div class="fac-rl">Téléphone</div><div class="fac-rv" id="fac-cli-tel">—</div></div>
+            <div class="fac-row"><div class="fac-rl">Responsable</div><div class="fac-rv" id="fac-cli-contact">—</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="fac-lines-title">📋 Détail des livraisons</div>
+      <table class="fac-table">
+        <thead>
+          <tr><th>#</th><th>Bon N°</th><th>Date</th><th>Destination</th><th>Livreur</th><th>Zone</th><th style="text-align:right">Montant (F)</th></tr>
+        </thead>
+        <tbody id="fac-tbody"></tbody>
+      </table>
+      <div class="fac-totaux">
+        <div class="fac-totaux-box">
+          <div class="fac-total-row"><span class="fac-total-lbl">Nombre de courses</span><span class="fac-total-val" id="fac-nb">0</span></div>
+          <div class="fac-total-row"><span class="fac-total-lbl">Sous-total</span><span class="fac-total-val" id="fac-sous-total">0 F</span></div>
+          <div class="fac-total-row final"><span class="fac-total-lbl">TOTAL NET À PAYER</span><span class="fac-total-val" id="fac-total">0 F</span></div>
+        </div>
+      </div>
+      <div class="fac-paiement">
+        <div class="fac-paiement-title">💳 MODALITÉS DE PAIEMENT</div>
+        <div class="fac-paiement-grid">
+          <div class="fac-pm"><strong>Orange Money</strong> 90042400</div>
+          <div class="fac-pm"><strong>Wave</strong> 90042400</div>
+          <div class="fac-pm"><strong>Espèces</strong> Acceptées</div>
+        </div>
+      </div>
+      <div class="fac-sigs">
+        <div class="fac-sig">
+          <div class="fac-sig-title">✍️ Signature & Cachet S Express Medical</div>
+          <div class="fac-sig-line"></div>
+          <div class="fac-sig-sub" id="fac-sig-gerant">Gérant</div>
+        </div>
+        <div class="fac-sig">
+          <div class="fac-sig-title">✍️ Bon pour accord — Client</div>
+          <div class="fac-sig-line"></div>
+          <div class="fac-sig-sub">Nom, Signature & Cachet</div>
+        </div>
+      </div>
+      <div class="fac-mention">Facture à régler à réception · S Express Medical — Logistique et Livraison Médicale · Bamako, Mali · Tél : 90042400 · La santé, livrée à temps !</div>
+    </div>
+    <div class="fac-footer">
+      <div class="fac-footer-contact">📞 <strong>90042400</strong> · Bamako, Mali · 24h/7j</div>
+      <div class="fac-footer-slogan">La santé, livrée à temps !</div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CLIENT -->
+<div class="modal-overlay" id="modal-client">
+  <div class="modal">
+    <button class="close-btn" onclick="fermerModalClient()">✕</button>
+    <div class="modal-title" id="modal-client-title">NOUVEAU CLIENT</div>
+    <div class="modal-grid">
+      <div class="f-group" style="grid-column:span 2">
+        <label class="f-label">Nom / Structure *</label>
+        <input type="text" class="f-input" id="mc-nom" placeholder="Pharmacie Alpha, Clinique Beta...">
+      </div>
+      <div class="f-group">
+        <label class="f-label">Adresse</label>
+        <input type="text" class="f-input" id="mc-adresse" placeholder="ACI 2000, Bamako">
+      </div>
+      <div class="f-group">
+        <label class="f-label">Téléphone</label>
+        <input type="text" class="f-input" id="mc-tel" placeholder="+223 XX XX XX XX">
+      </div>
+      <div class="f-group" style="grid-column:span 2">
+        <label class="f-label">Responsable / Contact</label>
+        <input type="text" class="f-input" id="mc-contact" placeholder="Nom du responsable">
+      </div>
+      <div class="f-group">
+        <label class="f-label">Email</label>
+        <input type="email" class="f-input" id="mc-email" placeholder="contact@pharmacie.ml">
+      </div>
+      <div class="f-group">
+        <label class="f-label">Type</label>
+        <select class="f-select" id="mc-type">
+          <option>Pharmacie</option>
+          <option>Clinique</option>
+          <option>Hôpital</option>
+          <option>Laboratoire</option>
+          <option>Cabinet médical</option>
+          <option>Autre</option>
+        </select>
+      </div>
+    </div>
+    <input type="hidden" id="mc-id">
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="fermerModalClient()">Annuler</button>
+      <button class="btn-save" onclick="sauvegarderClient()">💾 Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══ SUPABASE CONFIG ══
+const SB_URL = "https://ynatpckhrclwzzcakilh.supabase.co";
+const SB_KEY = "sb_publishable_YhSt4ibzzob6TfgHQmpKEQ_ZiexF4B2";
+const SB_ROW = "sexpress_gestion_main";   // clé unique du jeu de données dans la table "gestion"
+let sb = null, fbOk = false;
+try { sb = supabase.createClient(SB_URL, SB_KEY); fbOk = true; }
+catch(e) { console.warn('Supabase non dispo — mode local'); }
+
+// Données complètes en mémoire (miroir de la ligne Supabase)
+let _DATA = { courses:{}, clients:[], depenses:{}, counters:{fac:0, bon:0} };
+let _saveTimer = null;
+
+// Sauvegarde groupée (anti-rebond 600ms) de tout _DATA vers Supabase
+function pushData() {
+  if (!fbOk || !sb) { showSync('💾 Local', false); return; }
+  clearTimeout(_saveTimer);
+  showSync('💾 Sauvegarde...', true);
+  _saveTimer = setTimeout(async () => {
+    try {
+      const { error } = await sb.from('gestion')
+        .upsert({ cle: SB_ROW, donnee: _DATA, updated_at: new Date().toISOString() }, { onConflict: 'cle' });
+      if (error) throw error;
+      showSync('✅ Sauvegardé');
+    } catch(e) { console.warn(e); showSync('⚠️ Local', false); }
+  }, 600);
+}
+
+function showSync(msg, ok=true) {
+  const el = document.getElementById('sync-badge');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.background = ok ? 'rgba(39,174,96,.15)' : 'rgba(245,166,35,.15)';
+  el.style.color = ok ? '#27AE60' : '#F5A623';
+  el.style.opacity = '1';
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.style.opacity = '0.4', 4000);
+}
+
+// ══ STATE ══
+let currentYear  = new Date().getFullYear();
+let currentMonth = new Date().getMonth();
+let facCounter   = parseInt(localStorage.getItem('s_fac_counter') || '0');
+let bonCounter   = parseInt(localStorage.getItem('s_bon_counter') || '0');
+
+const MONTHS_FR = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+const MONTHS_SHORT = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+
+// ══ CLÉS (par mois) ══
+function monthKey(y, m) { return `${y??currentYear}_${m??currentMonth}`; }
+
+// ══ COURSES ══  (stockées dans _DATA.courses[ "ANNEE_MOIS" ])
+function getCourses(y, m) {
+  const k = monthKey(y, m);
+  return _DATA.courses[k] || JSON.parse(localStorage.getItem('s_express_'+k) || '[]');
+}
+function saveCourses(list, y, m) {
+  const k = monthKey(y, m);
+  _DATA.courses[k] = list;
+  localStorage.setItem('s_express_'+k, JSON.stringify(list));
+  pushData();
+}
+
+// ══ CLIENTS ══
+function getClients() { return (_DATA.clients && _DATA.clients.length ? _DATA.clients : JSON.parse(localStorage.getItem('s_clients') || '[]')); }
+function saveClients(list) {
+  _DATA.clients = list;
+  localStorage.setItem('s_clients', JSON.stringify(list));
+  pushData();
+}
+
+// ══ DÉPENSES ══
+function getDepenses(y, m) {
+  const k = monthKey(y, m);
+  return _DATA.depenses[k] || JSON.parse(localStorage.getItem('s_dep_'+k) || '[]');
+}
+function saveDepenses(list, y, m) {
+  const k = monthKey(y, m);
+  _DATA.depenses[k] = list;
+  localStorage.setItem('s_dep_'+k, JSON.stringify(list));
+  pushData();
+}
+function getTotalDepenses(y, m) { return getDepenses(y,m).reduce((s,d)=>s+(d.montant||0),0); }
+
+// ══ COMPTEURS ══
+function saveCounters() {
+  _DATA.counters = { fac: facCounter, bon: bonCounter };
+  localStorage.setItem('s_fac_counter', facCounter);
+  localStorage.setItem('s_bon_counter', bonCounter);
+  pushData();
+}
+
+// ══ CHARGEMENT SUPABASE AU DÉMARRAGE ══
+function loadFromFirebase(callback) {   // (nom conservé pour compatibilité avec le reste du code)
+  if (!fbOk || !sb) { callback(); return; }
+  showSync('🔄 Chargement...', true);
+  sb.from('gestion').select('donnee').eq('cle', SB_ROW).maybeSingle()
+    .then(({ data, error }) => {
+      if (error) throw error;
+      if (data && data.donnee) {
+        const d = data.donnee;
+        _DATA = {
+          courses:  d.courses  || {},
+          clients:  Array.isArray(d.clients) ? d.clients : [],
+          depenses: d.depenses || {},
+          counters: d.counters || { fac:0, bon:0 }
+        };
+        // Miroir local (sécurité hors-ligne)
+        localStorage.setItem('s_clients', JSON.stringify(_DATA.clients));
+        Object.entries(_DATA.courses).forEach(([k,list]) => localStorage.setItem('s_express_'+k, JSON.stringify(list)));
+        Object.entries(_DATA.depenses).forEach(([k,list]) => localStorage.setItem('s_dep_'+k, JSON.stringify(list)));
+        if ((_DATA.counters.fac||0) > facCounter) { facCounter = _DATA.counters.fac; localStorage.setItem('s_fac_counter', facCounter); }
+        if ((_DATA.counters.bon||0) > bonCounter) { bonCounter = _DATA.counters.bon; localStorage.setItem('s_bon_counter', bonCounter); }
+        showSync('☁️ Données chargées');
+      } else {
+        showSync('☁️ Connecté (vide)');
+      }
+      setupRealtime();
+      callback();
+    })
+    .catch((e) => { console.warn(e); showSync('⚠️ Mode hors-ligne', false); callback(); });
+}
+
+// ══ SYNCHRONISATION TEMPS RÉEL ══
+function setupRealtime() {
+  if (!fbOk || !sb) return;
+  try {
+    sb.channel('gestion_rt')
+      .on('postgres_changes', { event:'*', schema:'public', table:'gestion', filter:'cle=eq.'+SB_ROW }, (payload) => {
+        const d = payload.new && payload.new.donnee;
+        if (!d) return;
+        _DATA = {
+          courses:  d.courses  || {},
+          clients:  Array.isArray(d.clients) ? d.clients : [],
+          depenses: d.depenses || {},
+          counters: d.counters || { fac:0, bon:0 }
+        };
+        if ((_DATA.counters.fac||0) > facCounter) facCounter = _DATA.counters.fac;
+        if ((_DATA.counters.bon||0) > bonCounter) bonCounter = _DATA.counters.bon;
+        showSync('🔄 Mis à jour');
+        renderAll();
+        const dash = document.getElementById('page-dashboard');
+        if (dash && dash.classList.contains('active')) renderDashboard();
+        const cli = document.getElementById('page-clients');
+        if (cli && cli.classList.contains('active')) renderClients();
+      })
+      .subscribe();
+  } catch(e) { console.warn('Realtime indisponible', e); }
+}
+
+// ══ NAVIGATION ══
+function switchPage(p, el) {
+  document.querySelectorAll('.page').forEach(e => e.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(e => e.classList.remove('active'));
+  document.getElementById('page-' + p).classList.add('active');
+  if(el) el.classList.add('active');
+  if(p === 'dashboard') renderDashboard();
+  if(p === 'clients') renderClients();
+  if(p === 'depenses') renderDepenses();
+  if(p === 'facture') { renderClientFilter(getCourses()); initFactureDates(); }
+}
+
+function changeMonth(dir) {
+  currentMonth += dir;
+  if(currentMonth > 11){ currentMonth=0; currentYear++; }
+  if(currentMonth < 0){ currentMonth=11; currentYear--; }
+  updateMonthLabel();
+  renderAll();
+  // Re-render depenses if on that page
+  if(document.getElementById('page-depenses').classList.contains('active')) renderDepenses();
+}
+
+function updateMonthLabel() {
+  document.getElementById('monthLabel').textContent = MONTHS_FR[currentMonth]+' '+currentYear;
+}
+
+// ══ GRILLE TARIFAIRE PAR DESTINATION (depuis Halles de Bamako) ══
+const ZONE_TARIFS = { 1:1000, 2:1500, 3:2000, 4:2500, 5:3500 };
+const DESTINATIONS = {
+  // Zone 1 — 1000 F
+  'Sogoniko':1, 'Faladié':1, 'Magnambougou':1, 'Niamakoro':1,
+  // Zone 2 — 1500 F
+  'Kalaban Coura':2, 'Golf':2, 'Sébénicoro':2, 'Yirimadio':2, 'Sabalibougou':2, 'Daoudabougou':2,
+  // Zone 3 — 2000 F
+  'Médina Coura':3, 'ACI 2000':3, 'Hippodrome':3, 'Point G':3, 'Banconi':3, 'Niarela':3,
+  // Zone 4 — 2500 F
+  'Titibougou':4, 'Boulkassoumbougou':4, 'Kalabancoro':4, 'Dialakorobougou':4,
+  // Zone 5 — 3000-4000 F
+  'Kati':5, 'Moribabougou':5, 'Dialakorodji':5, 'Baguineda':5, 'Sanankoroba':5
+};
+
+// Remplit le datalist des destinations connues
+function fillDestDatalist() {
+  const dl = document.getElementById('dest-datalist');
+  if (!dl) return;
+  dl.innerHTML = Object.keys(DESTINATIONS).map(d => `<option value="${d}">`).join('');
+}
+
+// Quand on tape/choisit une destination → sélectionne la zone automatiquement
+function autoZoneFromDest() {
+  const dest = (document.getElementById('f-dest').value || '').trim();
+  // recherche insensible à la casse
+  let zone = null;
+  for (const [name, z] of Object.entries(DESTINATIONS)) {
+    if (name.toLowerCase() === dest.toLowerCase()) { zone = z; break; }
+  }
+  if (zone) {
+    document.getElementById('f-zone').value = String(ZONE_TARIFS[zone]);
+    autoMontant();
+  }
+}
+
+// Calcule le montant : tarif de zone + suppléments cochés
+function autoMontant() {
+  let total = parseInt(document.getElementById('f-zone').value) || 0;
+  if (document.getElementById('sup-urgent') && document.getElementById('sup-urgent').checked) total += 500;
+  if (document.getElementById('sup-lourd')  && document.getElementById('sup-lourd').checked)  total += 1000;
+  if (document.getElementById('sup-nuit')   && document.getElementById('sup-nuit').checked)   total += 500;
+  if (document.getElementById('sup-pharma') && document.getElementById('sup-pharma').checked) total += 1500;
+  document.getElementById('f-montant').value = total;
+}
+
+function initFactureDates() {
+  const y = currentYear, m = currentMonth;
+  const first = `${y}-${String(m+1).padStart(2,'0')}-01`;
+  const last  = `${y}-${String(m+1).padStart(2,'0')}-${String(new Date(y,m+1,0).getDate()).padStart(2,'0')}`;
+  if(!document.getElementById('fac-date-debut').value) document.getElementById('fac-date-debut').value = first;
+  if(!document.getElementById('fac-date-fin').value)   document.getElementById('fac-date-fin').value   = last;
+}
+
+// ══ COURSES ══
+function addCourse() {
+  const date    = document.getElementById('f-date').value;
+  const client  = document.getElementById('f-client').value.trim();
+  const dest    = document.getElementById('f-dest').value.trim();
+  const livreur = document.getElementById('f-livreur').value;
+  const zoneEl  = document.getElementById('f-zone');
+  const zone    = zoneEl.options[zoneEl.selectedIndex].text;
+  const montant = parseInt(document.getElementById('f-montant').value) || 0;
+  const statut  = document.getElementById('f-statut').value;
+
+  if(!client || !dest){ alert('Remplissez au minimum le client et la destination.'); return; }
+
+  bonCounter++;
+  saveCounters();
+  const bon = 'BL-'+currentYear+'-'+String(bonCounter).padStart(4,'0');
+
+  const list = getCourses();
+  list.push({ id:Date.now(), bon, date, client, dest, livreur, zone, montant, statut });
+  saveCourses(list);
+  renderAll();
+  document.getElementById('f-dest').value = '';
+  ['sup-urgent','sup-lourd','sup-nuit','sup-pharma'].forEach(id => { const e=document.getElementById(id); if(e) e.checked=false; });
+  showToast('✅ Course enregistrée — '+bon);
+}
+
+function deleteCourse(id) {
+  if(!confirm('Supprimer cette course ?')) return;
+  saveCourses(getCourses().filter(c => c.id !== id));
+  renderAll();
+}
+
+// ══ SAISIE RAPIDE PAR LOT ══
+function livreurOptionsHTML() {
+  return document.getElementById('f-livreur').innerHTML;
+}
+
+function lotZoneMontantFromDest(destValue) {
+  const dest = (destValue || '').trim();
+  for (const [name, z] of Object.entries(DESTINATIONS)) {
+    if (name.toLowerCase() === dest.toLowerCase()) return ZONE_TARIFS[z];
+  }
+  return null;
+}
+
+function addLotRow() {
+  const tbody = document.getElementById('lot-tbody');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td style="padding:4px;"><input class="f-input" type="text" list="clients-datalist" placeholder="Client"></td>
+    <td style="padding:4px;"><input class="f-input" type="text" list="dest-datalist" placeholder="Destination" oninput="lotAutoMontant(this)"></td>
+    <td style="padding:4px;"><select class="f-select">${livreurOptionsHTML()}</select></td>
+    <td style="padding:4px;"><input class="f-input" type="number" value="1000" style="width:90px;"></td>
+    <td style="padding:4px;">
+      <select class="f-select">
+        <option value="livre">✅ Livré</option>
+        <option value="encours">🟡 En cours</option>
+        <option value="echec">❌ Échec</option>
+      </select>
+    </td>
+    <td style="padding:4px;"><button type="button" onclick="this.closest('tr').remove()" style="background:none;border:none;color:#B03A2E;font-size:16px;cursor:pointer;">🗑</button></td>
+  `;
+  tbody.appendChild(tr);
+}
+
+function lotAutoMontant(destInput) {
+  const montant = lotZoneMontantFromDest(destInput.value);
+  if (montant != null) {
+    const row = destInput.closest('tr');
+    row.querySelector('input[type="number"]').value = montant;
+  }
+}
+
+function saveLotAll() {
+  const date = document.getElementById('lot-date').value || new Date().toISOString().split('T')[0];
+  const rows = Array.from(document.querySelectorAll('#lot-tbody tr'));
+  const list = getCourses();
+  let added = 0;
+
+  rows.forEach(row => {
+    const inputs = row.querySelectorAll('input, select');
+    const client  = inputs[0].value.trim();
+    const dest    = inputs[1].value.trim();
+    const livreur = inputs[2].value;
+    const montant = parseInt(inputs[3].value) || 0;
+    const statut  = inputs[4].value;
+    if (!client || !dest) return; // ligne vide ou incomplète, ignorée
+
+    bonCounter++;
+    const bon = 'BL-'+currentYear+'-'+String(bonCounter).padStart(4,'0');
+    const zoneLabel = (() => {
+      const opt = document.getElementById('f-zone').querySelector(`option[value="${montant}"]`);
+      return opt ? opt.textContent : 'Personnalisé';
+    })();
+    list.push({ id: Date.now()+added, bon, date, client, dest, livreur, zone: zoneLabel, montant, statut });
+    added++;
+  });
+
+  if (added === 0) { alert('Aucune ligne complète (client + destination requis).'); return; }
+
+  saveCounters();
+  saveCourses(list);
+  renderAll();
+
+  document.getElementById('lot-tbody').innerHTML = '';
+  addLotRow();
+  document.getElementById('lot-ocr-text').value = '';
+  showToast(`✅ ${added} course(s) enregistrée(s) en une fois`);
+}
+
+async function ocrLotPhoto() {
+  const input = document.getElementById('lot-photo-input');
+  const status = document.getElementById('lot-ocr-status');
+  const out = document.getElementById('lot-ocr-text');
+  if (!input.files || !input.files[0]) return;
+  if (typeof Tesseract === 'undefined') {
+    status.textContent = "Lecture indisponible hors ligne — connectez-vous à internet puis réessayez.";
+    return;
+  }
+  status.textContent = "⏳ Lecture de la photo en cours (ça peut prendre 10-20 secondes)...";
+  out.value = '';
+  try {
+    const { data } = await Tesseract.recognize(input.files[0], 'fra');
+    out.value = data.text.trim();
+    status.textContent = "✅ Texte reconnu — relisez-le, l'écriture manuscrite n'est jamais lue parfaitement. Recopiez ensuite les lignes ci-dessous.";
+  } catch (e) {
+    status.textContent = "Erreur de lecture : " + e.message;
+  }
+}
+
+function changeStatut(id, newStatut) {
+  const list = getCourses();
+  const c = list.find(c => c.id === id);
+  if(c){ c.statut = newStatut; saveCourses(list); renderAll(); }
+}
+
+// ══ RENDER ALL ══
+function renderAll() {
+  const list = getCourses();
+  renderStats(list);
+  renderTable(list);
+  renderLivreurs(list);
+  renderClientFilter(list);
+  updateClientsDatalist();
+}
+
+function fmt(n){ return n.toLocaleString('fr-FR'); }
+
+function renderStats(list) {
+  const total   = list.length;
+  const livrees = list.filter(c => c.statut==='livre').length;
+  const echecs  = list.filter(c => c.statut==='echec').length;
+  const ca      = list.reduce((s,c) => s+c.montant, 0);
+  const taux    = total > 0 ? Math.round(livrees/total*100) : '—';
+  const depTotal = getTotalDepenses();
+  const benefice = ca - depTotal;
+
+  document.getElementById('s-total').textContent   = total;
+  document.getElementById('s-livrees').textContent = livrees;
+  document.getElementById('s-ca').textContent      = fmt(ca);
+  document.getElementById('s-echecs').textContent  = echecs;
+  document.getElementById('s-taux').textContent    = taux === '—' ? '—' : taux+'%';
+  const bEl = document.getElementById('s-benefice');
+  bEl.textContent = fmt(benefice);
+  bEl.style.color = benefice >= 0 ? '#7C3AED' : 'var(--red)';
+  document.getElementById('badge-count').textContent = total+' course'+(total>1?'s':'');
+}
+
+function renderTable(list) {
+  const tbody  = document.getElementById('tbody');
+  const search = document.getElementById('filtre-search').value.toLowerCase();
+  const livr   = document.getElementById('filtre-livreur').value;
+  const stat   = document.getElementById('filtre-statut').value;
+
+  let filtered = list.filter(c => {
+    if(search && !c.client.toLowerCase().includes(search) && !c.dest.toLowerCase().includes(search)) return false;
+    if(livr && c.livreur !== livr) return false;
+    if(stat && c.statut !== stat) return false;
+    return true;
+  });
+
+  if(filtered.length === 0){
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">🏍️</div><div class="empty-text">Aucune course trouvée</div></div></td></tr>`;
+    return;
+  }
+  const sorted = [...filtered].sort((a,b) => b.date.localeCompare(a.date));
+  tbody.innerHTML = sorted.map(c => `
+    <tr>
+      <td class="bon-cell">${c.bon||'—'}</td>
+      <td>${formatDateFr(c.date)}</td>
+      <td><strong>${c.client}</strong></td>
+      <td>${c.dest}</td>
+      <td>${c.livreur||'—'}</td>
+      <td style="font-size:10px;color:var(--muted);">${c.zone}</td>
+      <td class="montant-cell">${fmt(c.montant)} F</td>
+      <td>
+        <select class="statut-select statut-${c.statut}" onchange="changeStatut(${c.id},this.value)">
+          <option value="livre"   ${c.statut==='livre'  ?'selected':''}>✅ Livré</option>
+          <option value="encours" ${c.statut==='encours'?'selected':''}>🟡 En cours</option>
+          <option value="echec"   ${c.statut==='echec'  ?'selected':''}>❌ Échec</option>
+        </select>
+      </td>
+      <td><button class="del-btn" onclick="deleteCourse(${c.id})">🗑️</button></td>
+    </tr>
+  `).join('');
+}
+
+function renderLivreurs(list) {
+  const grid = document.getElementById('livreurs-grid');
+  if(list.length === 0){ grid.innerHTML='<div style="color:var(--muted);font-size:13px;">Ajoutez des courses pour voir les performances.</div>'; return; }
+  const map = {};
+  list.forEach(c => {
+    const nom = c.livreur||'Non assigné';
+    if(!map[nom]) map[nom]={courses:0,ca:0,livrees:0};
+    map[nom].courses++; map[nom].ca+=c.montant;
+    if(c.statut==='livre') map[nom].livrees++;
+  });
+  const colors = ['var(--navy)','var(--green)','var(--gold)','var(--red)','var(--navy3)'];
+  grid.innerHTML = Object.entries(map).sort((a,b)=>b[1].ca-a[1].ca).map(([nom,d],i) => {
+    const taux = d.courses>0 ? Math.round(d.livrees/d.courses*100) : 0;
+    return `<div class="livreur-card" style="border-color:${colors[i%colors.length]}">
+      <div class="livreur-name">🏍️ ${nom}</div>
+      <div class="livreur-stat"><strong>${d.courses}</strong> course${d.courses>1?'s':''}</div>
+      <div class="livreur-stat"><strong>${fmt(d.ca)} F</strong> CA</div>
+      <div class="livreur-stat"><strong>${d.livrees}/${d.courses}</strong> livrées · <strong>${taux}%</strong></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${taux}%"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function renderClientFilter(list) {
+  const sel = document.getElementById('fac-filtre-client');
+  const cur = sel.value;
+  const clients = [...new Set(list.map(c=>c.client).filter(Boolean))].sort();
+  sel.innerHTML = '<option value="">— Tous les clients —</option>' +
+    clients.map(c=>`<option value="${c}"${c===cur?' selected':''}>${c}</option>`).join('');
+}
+
+function updateClientsDatalist() {
+  const dl = document.getElementById('clients-datalist');
+  const clients = getClients();
+  const fromCourses = [...new Set(getCourses().map(c=>c.client).filter(Boolean))];
+  const all = [...new Set([...clients.map(c=>c.nom), ...fromCourses])].sort();
+  dl.innerHTML = all.map(c=>`<option value="${c}">`).join('');
+}
+
+// ══ CLIENTS ══
+function renderClients() {
+  const grid = document.getElementById('clients-grid');
+  const clients = getClients();
+  if(clients.length === 0){ grid.innerHTML='<div style="color:var(--muted);font-size:13px;padding:20px;">Aucun client enregistré. Cliquez sur "+ Nouveau Client" pour commencer.</div>'; return; }
+  const typeColors = {'Pharmacie':'var(--green)','Clinique':'var(--navy)','Hôpital':'var(--red)','Laboratoire':'var(--gold)','Cabinet médical':'var(--navy3)','Autre':'var(--muted)'};
+  grid.innerHTML = clients.map(c => `
+    <div class="client-card" style="border-color:${typeColors[c.type]||'var(--navy)'}">
+      <div style="font-size:9px;font-weight:700;color:${typeColors[c.type]||'var(--muted)'};text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;">${c.type||'Client'}</div>
+      <div class="client-card-name">${c.nom}</div>
+      ${c.adresse?`<div class="client-card-info">📍 <strong>${c.adresse}</strong></div>`:''}
+      ${c.tel?`<div class="client-card-info">📞 <strong>${c.tel}</strong></div>`:''}
+      ${c.contact?`<div class="client-card-info">👤 <strong>${c.contact}</strong></div>`:''}
+      ${c.email?`<div class="client-card-info">✉️ <strong>${c.email}</strong></div>`:''}
+      <div class="client-card-actions">
+        <button class="btn-sm btn-sm-green" onclick="factureClient('${c.nom.replace(/'/g,"\\'")}')">📄 Facturer</button>
+        <button class="btn-sm btn-sm-navy" onclick="editerClient('${c.id}')">✏️ Modifier</button>
+        <button class="btn-sm btn-sm-red" onclick="supprimerClient('${c.id}')">🗑️</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function ouvrirModalClient(id) {
+  document.getElementById('mc-nom').value=''; document.getElementById('mc-adresse').value='';
+  document.getElementById('mc-tel').value=''; document.getElementById('mc-contact').value='';
+  document.getElementById('mc-email').value=''; document.getElementById('mc-id').value='';
+  document.getElementById('mc-type').value='Pharmacie';
+  document.getElementById('modal-client-title').textContent='NOUVEAU CLIENT';
+  if(id){
+    const c = getClients().find(c=>c.id===id);
+    if(c){
+      document.getElementById('mc-nom').value=c.nom||''; document.getElementById('mc-adresse').value=c.adresse||'';
+      document.getElementById('mc-tel').value=c.tel||''; document.getElementById('mc-contact').value=c.contact||'';
+      document.getElementById('mc-email').value=c.email||''; document.getElementById('mc-id').value=c.id;
+      document.getElementById('mc-type').value=c.type||'Pharmacie';
+      document.getElementById('modal-client-title').textContent='MODIFIER CLIENT';
+    }
+  }
+  document.getElementById('modal-client').classList.add('open');
+}
+function fermerModalClient(){ document.getElementById('modal-client').classList.remove('open'); }
+function editerClient(id){ ouvrirModalClient(id); }
+
+function sauvegarderClient() {
+  const nom = document.getElementById('mc-nom').value.trim();
+  if(!nom){ alert('Le nom est obligatoire.'); return; }
+  const clients = getClients();
+  const id = document.getElementById('mc-id').value;
+  const data = {
+    nom, adresse:document.getElementById('mc-adresse').value.trim(),
+    tel:document.getElementById('mc-tel').value.trim(),
+    contact:document.getElementById('mc-contact').value.trim(),
+    email:document.getElementById('mc-email').value.trim(),
+    type:document.getElementById('mc-type').value
+  };
+  if(id){
+    const idx = clients.findIndex(c=>c.id===id);
+    if(idx>-1) clients[idx]={...clients[idx],...data};
+  } else {
+    clients.push({...data, id:String(Date.now())});
+  }
+  saveClients(clients);
+  fermerModalClient();
+  renderClients();
+  showToast('✅ Client enregistré : '+nom);
+}
+
+function supprimerClient(id) {
+  if(!confirm('Supprimer ce client ?')) return;
+  saveClients(getClients().filter(c=>c.id!==id));
+  renderClients();
+}
+
+function factureClient(nom) {
+  switchPage('facture', document.querySelectorAll('.nav-tab')[3]);
+  setTimeout(()=>{ document.getElementById('fac-filtre-client').value=nom; autoFillClient(); },100);
+}
+
+function autoFillClient() {
+  const nom = document.getElementById('fac-filtre-client').value;
+  if(!nom) return;
+  const c = getClients().find(c=>c.nom===nom);
+  if(c){
+    document.getElementById('cli-nom').value=c.nom;
+    document.getElementById('cli-adresse').value=c.adresse||'';
+    document.getElementById('cli-tel').value=c.tel||'';
+    document.getElementById('cli-contact').value=c.contact||'';
+  }
+}
+
+// ══ DASHBOARD ══
+function renderDashboard() {
+  document.getElementById('dash-annee').textContent = currentYear;
+  let totalAnnuel=0, caAnnuel=0, totalLivrees=0, depAnnuel=0;
+  const moisData = [];
+  let bestMoisVal=0, bestMoisNom='—';
+
+  for(let m=0; m<12; m++){
+    const list = getCourses(currentYear, m);
+    const deps = getDepenses(currentYear, m);
+    const ca = list.reduce((s,c)=>s+c.montant,0);
+    const dep = deps.reduce((s,d)=>s+d.montant,0);
+    const livrees = list.filter(c=>c.statut==='livre').length;
+    totalAnnuel += list.length;
+    caAnnuel += ca;
+    totalLivrees += livrees;
+    depAnnuel += dep;
+    moisData.push({mois:MONTHS_SHORT[m], total:list.length, ca, livrees});
+    if(ca > bestMoisVal){ bestMoisVal=ca; bestMoisNom=MONTHS_SHORT[m]; }
+  }
+
+  const beneficeAnnuel = caAnnuel - depAnnuel;
+
+  const tauxGlobal = totalAnnuel>0 ? Math.round(totalLivrees/totalAnnuel*100) : '—';
+  document.getElementById('d-total').textContent = totalAnnuel;
+  document.getElementById('d-ca').textContent    = fmt(caAnnuel);
+  document.getElementById('d-best-month').textContent = bestMoisNom;
+  document.getElementById('d-taux').textContent  = tauxGlobal==='—'?'—':tauxGlobal+'%';
+  // Update label for benefice annuel
+  const caEl = document.getElementById('d-ca');
+  caEl.textContent = fmt(caAnnuel);
+  caEl.title = `Dépenses annuelles: ${fmt(depAnnuel)} F | Bénéfice: ${fmt(beneficeAnnuel)} F`;
+
+  // Clients actifs ce mois
+  const curList = getCourses();
+  const clientsActifs = new Set(curList.map(c=>c.client).filter(Boolean)).size;
+  document.getElementById('d-clients').textContent = clientsActifs;
+
+  // Chart barres — CA vs Dépenses
+  const maxCa = Math.max(...moisData.map(d=>d.ca), 1);
+  const bars = document.getElementById('chart-bars');
+  bars.innerHTML = moisData.map(d => {
+    const dep = getDepenses(currentYear, MONTHS_SHORT.indexOf(d.mois)).reduce((s,x)=>s+x.montant,0);
+    const h = Math.round(d.ca/maxCa*100);
+    const hd = Math.round(dep/maxCa*100);
+    const isCurrentMonth = (MONTHS_SHORT.indexOf(d.mois) === currentMonth);
+    return `<div class="bar-wrap">
+      <div class="bar-val">${d.ca>0?fmt(d.ca/1000)+'k':''}</div>
+      <div style="width:100%;display:flex;gap:2px;align-items:flex-end;height:100%;">
+        <div class="bar" style="flex:1;height:${h}%;background:${isCurrentMonth?'var(--gold)':'var(--navy)'};opacity:${d.ca>0?1:.2}"></div>
+        <div class="bar" style="flex:1;height:${hd}%;background:var(--red);opacity:${dep>0?.7:.1}"></div>
+      </div>
+      <div class="bar-label">${d.mois}</div>
+    </div>`;
+  }).join('');
+
+  // Top livreurs (CA, courses, taux de réussite)
+  const mapLiv={};
+  curList.forEach(c=>{ const n=c.livreur||'—'; if(!mapLiv[n]) mapLiv[n]={ca:0,courses:0,livrees:0}; mapLiv[n].ca+=c.montant; mapLiv[n].courses++; if(c.statut==='livre') mapLiv[n].livrees++; });
+  const topLiv = Object.entries(mapLiv).sort((a,b)=>b[1].ca-a[1].ca).slice(0,5);
+  const rankClasses=['gold','silver','bronze','',''];
+  document.getElementById('top-livreurs').innerHTML = topLiv.length===0
+    ? '<div style="color:var(--muted);font-size:12px;">Aucune donnée ce mois.</div>'
+    : topLiv.map(([nom,d],i)=>{
+        const taux = d.courses>0 ? Math.round(d.livrees/d.courses*100) : 0;
+        return `<div class="top-item"><div class="top-rank ${rankClasses[i]}">${i+1}</div><div class="top-name">🏍️ ${nom}<br><span style="font-size:10px;color:var(--muted);font-weight:600;">✅ ${taux}% réussite</span></div><div class="top-val">${fmt(d.ca)} F · ${d.courses} crs</div></div>`;
+      }).join('');
+
+  // Top clients
+  const mapCli={};
+  curList.forEach(c=>{ const n=c.client||'—'; if(!mapCli[n]) mapCli[n]={ca:0,courses:0}; mapCli[n].ca+=c.montant; mapCli[n].courses++; });
+  const topCli = Object.entries(mapCli).sort((a,b)=>b[1].ca-a[1].ca).slice(0,5);
+  document.getElementById('top-clients').innerHTML = topCli.length===0
+    ? '<div style="color:var(--muted);font-size:12px;">Aucune donnée ce mois.</div>'
+    : topCli.map(([nom,d],i)=>`<div class="top-item"><div class="top-rank ${rankClasses[i]}">${i+1}</div><div class="top-name">🏢 ${nom}</div><div class="top-val">${fmt(d.ca)} F · ${d.courses} crs</div></div>`).join('');
+
+  // Zone stats
+  const mapZone={};
+  curList.forEach(c=>{ if(!mapZone[c.zone]) mapZone[c.zone]={count:0,ca:0}; mapZone[c.zone].count++; mapZone[c.zone].ca+=c.montant; });
+  const maxZ = Math.max(...Object.values(mapZone).map(z=>z.count),1);
+  document.getElementById('zone-stats').innerHTML = Object.entries(mapZone).sort((a,b)=>b[1].count-a[1].count).map(([zone,d])=>`
+    <div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;">
+        <span style="font-weight:600;color:var(--text);">${zone}</span>
+        <span style="color:var(--muted);">${d.count} courses · ${fmt(d.ca)} F</span>
+      </div>
+      <div class="progress-bar" style="height:6px;"><div class="progress-fill" style="width:${Math.round(d.count/maxZ*100)}%;background:linear-gradient(90deg,var(--navy),var(--navy3));"></div></div>
+    </div>
+  `).join('');
+}
+
+// ══ FACTURE ══
+function genererFacture() {
+  const filtreClient = document.getElementById('fac-filtre-client').value;
+  const dateDebut    = document.getElementById('fac-date-debut').value;
+  const dateFin      = document.getElementById('fac-date-fin').value;
+  const statutPaie   = document.getElementById('fac-statut-paiement').value;
+
+  let list = getCourses().filter(c => c.statut !== 'echec');
+  if(filtreClient) list = list.filter(c => c.client === filtreClient);
+  if(dateDebut)    list = list.filter(c => c.date >= dateDebut);
+  if(dateFin)      list = list.filter(c => c.date <= dateFin);
+
+  if(list.length === 0){ alert('Aucune course trouvée pour ces critères.'); return; }
+
+  facCounter++;
+  saveCounters();
+  const numFac = 'FAC-'+currentYear+'-'+String(facCounter).padStart(3,'0');
+
+  document.getElementById('fac-num').textContent          = numFac;
+  document.getElementById('fac-date-emission').textContent = formatDateFr(new Date().toISOString().split('T')[0]);
+  const periodeLabel = dateDebut && dateFin
+    ? formatDateFr(dateDebut)+' → '+formatDateFr(dateFin)
+    : MONTHS_FR[currentMonth]+' '+currentYear;
+  document.getElementById('fac-periode').textContent      = periodeLabel;
+  document.getElementById('fac-nb-courses').textContent   = list.length+' course'+(list.length>1?'s':'');
+
+  document.getElementById('fac-cli-nom').textContent      = document.getElementById('cli-nom').value||'—';
+  document.getElementById('fac-cli-adresse').textContent  = document.getElementById('cli-adresse').value||'—';
+  document.getElementById('fac-cli-tel').textContent      = document.getElementById('cli-tel').value||'—';
+  document.getElementById('fac-cli-contact').textContent  = document.getElementById('cli-contact').value||'—';
+  const gerant = document.getElementById('gerant-nom').value||'—';
+  document.getElementById('fac-gerant').textContent       = gerant;
+  document.getElementById('fac-sig-gerant').textContent   = gerant+' — Gérant';
+
+  // Badge statut paiement
+  const badgeEl = document.getElementById('fac-statut-badge');
+  badgeEl.innerHTML = statutPaie==='paye'
+    ? '<div class="fac-statut-paiement paye">✅ FACTURE PAYÉE</div>'
+    : '<div class="fac-statut-paiement attente">⏳ EN ATTENTE DE PAIEMENT</div>';
+
+  const sorted = [...list].sort((a,b)=>a.date.localeCompare(b.date));
+  const total  = sorted.reduce((s,c)=>s+c.montant,0);
+
+  document.getElementById('fac-tbody').innerHTML = sorted.map((c,i)=>`
+    <tr>
+      <td style="color:var(--muted);font-size:9px;font-weight:700;">${i+1}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">${c.bon||'—'}</td>
+      <td>${formatDateFr(c.date)}</td>
+      <td>${c.dest}</td>
+      <td>${c.livreur||'—'}</td>
+      <td style="font-size:9px;color:var(--muted);">${c.zone}</td>
+      <td class="right">${fmt(c.montant)}</td>
+    </tr>
+  `).join('');
+
+  document.getElementById('fac-nb').textContent         = list.length;
+  document.getElementById('fac-sous-total').textContent = fmt(total)+' F';
+  document.getElementById('fac-total').textContent      = fmt(total)+' F';
+
+  document.getElementById('facture-preview').style.display = 'block';
+  document.getElementById('facture-preview').scrollIntoView({behavior:'smooth'});
+
+  // Mémoriser pour l'envoi WhatsApp
+  _lastFacture = {
+    num: numFac,
+    client: document.getElementById('cli-nom').value || filtreClient || 'Client',
+    tel: (document.getElementById('cli-tel').value || '').replace(/[^0-9]/g,''),
+    periode: periodeLabel,
+    nb: list.length,
+    total: total
+  };
+}
+
+// ══ ENVOI FACTURE PAR WHATSAPP ══
+let _lastFacture = null;
+function envoyerFactureWhatsApp() {
+  if (!_lastFacture) { alert("Génère d'abord la facture avant de l'envoyer."); return; }
+  const f = _lastFacture;
+  let msg = `*S EXPRESS MEDICAL*\n`;
+  msg += `Facture N° ${f.num}\n`;
+  msg += `Client : ${f.client}\n`;
+  msg += `Période : ${f.periode}\n`;
+  msg += `Nombre de courses : ${f.nb}\n`;
+  msg += `*TOTAL : ${fmt(f.total)} F CFA*\n\n`;
+  msg += `Merci de votre confiance.\nS Express Medical — Bamako\nTél: 90 04 24 00`;
+  // Numéro du client si dispo (format international Mali 223)
+  let tel = f.tel;
+  if (tel && !tel.startsWith('223')) tel = '223' + tel;
+  const url = tel
+    ? `https://wa.me/${tel}?text=${encodeURIComponent(msg)}`
+    : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+}
+
+// ══ DEPENSES ══
+const DEP_CATS = {
+  'Essence':    { icon:'⛽', color:'#F59E0B' },
+  'Salaire':    { icon:'👷', color:'#3B82F6' },
+  'Téléphone':  { icon:'📱', color:'#8B5CF6' },
+  'Nourriture': { icon:'🍽️', color:'#EF4444' },
+  'Réparation': { icon:'🔧', color:'#6B7280' },
+  'Loyer':      { icon:'🏠', color:'#10B981' },
+  'Autre':      { icon:'📦', color:'#6B7280' },
+};
+
+function addDepense() {
+  const date    = document.getElementById('dep-date').value;
+  const cat     = document.getElementById('dep-categorie').value;
+  const desc    = document.getElementById('dep-desc').value.trim();
+  const montant = parseInt(document.getElementById('dep-montant').value) || 0;
+  if(!date || montant <= 0){ alert('Remplissez la date et le montant.'); return; }
+  const list = getDepenses();
+  list.push({ id:Date.now(), date, categorie:cat, desc, montant });
+  saveDepenses(list);
+  renderDepenses();
+  renderAll(); // met a jour le benefice net
+  document.getElementById('dep-desc').value = '';
+  document.getElementById('dep-montant').value = '';
+  showToast('✅ Dépense enregistrée — '+fmt(montant)+' F');
+}
+
+function deleteDepense(id) {
+  if(!confirm('Supprimer cette dépense ?')) return;
+  saveDepenses(getDepenses().filter(d => d.id !== id));
+  renderDepenses();
+  renderAll();
+}
+
+function renderDepenses() {
+  const list = getDepenses();
+  const ca   = getCourses().reduce((s,c) => s+c.montant, 0);
+  const totalDep = list.reduce((s,d) => s+d.montant, 0);
+  const benefice = ca - totalDep;
+  const marge    = ca > 0 ? Math.round(benefice/ca*100) : 0;
+
+  // Bilan
+  document.getElementById('b-ca').textContent  = fmt(ca);
+  document.getElementById('b-dep').textContent = fmt(totalDep);
+  document.getElementById('b-ben').textContent = fmt(benefice);
+  document.getElementById('b-ben').style.color = benefice >= 0 ? '#4ade80' : '#f87171';
+  document.getElementById('b-marge').textContent = ca > 0 ? marge+'%' : '—';
+  document.getElementById('b-marge').style.color = marge >= 0 ? 'white' : '#f87171';
+
+  // Résumé par catégorie
+  const map = {};
+  list.forEach(d => {
+    if(!map[d.categorie]) map[d.categorie] = 0;
+    map[d.categorie] += d.montant;
+  });
+  const cats = document.getElementById('dep-cats-summary');
+  const allCats = Object.keys(DEP_CATS);
+  cats.innerHTML = allCats.map(cat => {
+    const total = map[cat] || 0;
+    const info = DEP_CATS[cat];
+    return `<div class="dep-cat-card" style="border-color:${info.color}${total>0?'':'40'};">
+      <div class="dep-cat-icon">${info.icon}</div>
+      <div class="dep-cat-name">${cat}</div>
+      <div class="dep-cat-total" style="color:${total>0?info.color:'var(--muted)'};">${total>0?fmt(total)+' F':'—'}</div>
+    </div>`;
+  }).join('');
+
+  // Badge
+  document.getElementById('badge-dep-count').textContent = list.length+' dépense'+(list.length>1?'s':'');
+
+  // Table
+  const tbody = document.getElementById('dep-tbody');
+  if(list.length === 0){
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">💸</div><div class="empty-text">Aucune dépense ce mois — Ajoutez la première !</div></div></td></tr>`;
+    return;
+  }
+  const sorted = [...list].sort((a,b) => b.date.localeCompare(a.date));
+  tbody.innerHTML = sorted.map(d => {
+    const info = DEP_CATS[d.categorie] || DEP_CATS['Autre'];
+    return `<tr>
+      <td>${formatDateFr(d.date)}</td>
+      <td><span style="background:${info.color}20;color:${info.color};padding:2px 10px;border-radius:20px;font-size:10px;font-weight:700;">${info.icon} ${d.categorie}</span></td>
+      <td style="color:var(--muted);">${d.desc||'—'}</td>
+      <td style="text-align:right;font-family:'DM Mono',monospace;font-weight:600;color:var(--red);">- ${fmt(d.montant)} F</td>
+      <td><button class="del-btn" onclick="deleteDepense(${d.id})">🗑️</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ══ EXPORT / IMPORT ══
+function exporterDonnees() {
+  const sauvegarde = { version:3, exportDate:new Date().toISOString(), appName:'S Express Medical', facCounter, bonCounter, mois:{}, depenses:{}, clients:getClients() };
+  for(let i=0;i<localStorage.length;i++){
+    const key=localStorage.key(i);
+    if(key&&key.startsWith('s_express_')){
+      try{ sauvegarde.mois[key]=JSON.parse(localStorage.getItem(key)); }catch(e){ sauvegarde.mois[key]=[]; }
+    }
+    if(key&&key.startsWith('s_dep_')){
+      try{ sauvegarde.depenses[key]=JSON.parse(localStorage.getItem(key)); }catch(e){ sauvegarde.depenses[key]=[]; }
+    }
+  }
+  const totalCourses = Object.values(sauvegarde.mois).reduce((s,a)=>s+a.length,0);
+  const totalDep = Object.values(sauvegarde.depenses).reduce((s,a)=>s+a.length,0);
+  const blob = new Blob([JSON.stringify(sauvegarde,null,2)],{type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download=`SExpress_Sauvegarde_${new Date().toISOString().split('T')[0]}.json`; a.click();
+  URL.revokeObjectURL(url);
+  showToast(`✅ Sauvegarde — ${totalCourses} courses · ${totalDep} dépenses · ${sauvegarde.clients.length} clients`);
+}
+
+function importerDonnees(event) {
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if(!data.version||!data.mois){ alert('❌ Fichier invalide.'); return; }
+      const total = Object.values(data.mois).reduce((s,a)=>s+a.length,0);
+      const ok = confirm(`📂 Sauvegarde détectée :\n• ${total} courses\n• ${(data.clients||[]).length} clients\n• Exporté le : ${new Date(data.exportDate).toLocaleDateString('fr-FR')}\n\nFusionner avec les données actuelles ?`);
+      if(!ok){ event.target.value=''; return; }
+      let ajoutees=0, depAjoutees=0;
+
+      // COURSES : "s_express_2026_4" → clé _DATA "2026_4"
+      for(const [key,courses] of Object.entries(data.mois)){
+        const dkey = key.replace('s_express_','');
+        const existing = _DATA.courses[dkey] || JSON.parse(localStorage.getItem(key)||'[]');
+        const ids = new Set(existing.map(c=>c.id));
+        const nouvelles = courses.filter(c=>!ids.has(c.id));
+        if(nouvelles.length>0){
+          const merged = [...existing, ...nouvelles];
+          _DATA.courses[dkey] = merged;
+          localStorage.setItem(key, JSON.stringify(merged));
+          ajoutees += nouvelles.length;
+        }
+      }
+
+      // DÉPENSES : "s_dep_2026_4" → clé _DATA "2026_4"
+      if(data.depenses){
+        for(const [key,deps] of Object.entries(data.depenses)){
+          const dkey = key.replace('s_dep_','');
+          const existing = _DATA.depenses[dkey] || JSON.parse(localStorage.getItem(key)||'[]');
+          const ids = new Set(existing.map(d=>d.id));
+          const nouvelles = deps.filter(d=>!ids.has(d.id));
+          if(nouvelles.length>0){
+            const merged = [...existing, ...nouvelles];
+            _DATA.depenses[dkey] = merged;
+            localStorage.setItem(key, JSON.stringify(merged));
+            depAjoutees += nouvelles.length;
+          }
+        }
+      }
+
+      // CLIENTS
+      if(data.clients&&data.clients.length>0){
+        const existingCli = getClients();
+        const existingIds = new Set(existingCli.map(c=>c.id));
+        const newCli = data.clients.filter(c=>!existingIds.has(c.id));
+        _DATA.clients = [...existingCli, ...newCli];
+        localStorage.setItem('s_clients', JSON.stringify(_DATA.clients));
+      }
+
+      // COMPTEURS
+      if((data.facCounter||0) > facCounter){ facCounter = data.facCounter; localStorage.setItem('s_fac_counter', facCounter); }
+      if((data.bonCounter||0) > bonCounter){ bonCounter = data.bonCounter; localStorage.setItem('s_bon_counter', bonCounter); }
+      _DATA.counters = { fac: facCounter, bon: bonCounter };
+
+      // SAUVEGARDE COMPLÈTE VERS SUPABASE
+      pushData();
+
+      renderAll();
+      showToast(`✅ Import réussi — ${ajoutees} courses · ${depAjoutees} dépenses · sauvegardé en ligne`);
+      event.target.value='';
+    } catch(err){ console.warn(err); alert('❌ Fichier illisible.'); event.target.value=''; }
+  };
+  reader.readAsText(file);
+}
+
+function showToast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.style.transform='translateY(0)'; t.style.opacity='1';
+  setTimeout(()=>{ t.style.transform='translateY(80px)'; t.style.opacity='0'; },3500);
+}
+
+// ══ UTILS ══
+function formatDateFr(dateStr) {
+  if(!dateStr) return '—';
+  const [y,m,d]=dateStr.split('-');
+  return d+'/'+m+'/'+y;
+}
+
+// ══ GUIDE D'UTILISATION ══
+const GUIDE_STEPS = [
+  { icon:'👋', title:'Bienvenue sur S Express !', body:'Voici votre plateforme de gestion des livraisons. Ce petit guide vous montre les fonctions principales en quelques étapes.' },
+  { icon:'🏍️', title:'Livraisons', body:'Enregistrez chaque course : choisissez la destination (le tarif se remplit <b>automatiquement</b> selon la zone !), le livreur, les suppléments éventuels, puis "Ajouter". Un bon BL est créé.' },
+  { icon:'🏢', title:'Clients', body:'Gérez votre base de clients : ajoutez leurs coordonnées une fois, et retrouvez-les automatiquement lors de la facturation.' },
+  { icon:'💸', title:'Dépenses', body:'Notez vos dépenses (essence, salaires, réparations...). L’application calcule votre <b>bénéfice net</b> automatiquement.' },
+  { icon:'📊', title:'Tableau de Bord', body:'Visualisez votre chiffre d’affaires, le classement de vos livreurs avec leur taux de réussite, et l’évolution mois par mois.' },
+  { icon:'📄', title:'Facturation', body:'Générez une facture professionnelle pour un client sur une période donnée, puis envoyez-la directement par <b>WhatsApp</b> ou imprimez-la en PDF.' }
+];
+let guideIdx = 0;
+function startGuide() {
+  guideIdx = 0;
+  document.getElementById('guide-overlay').classList.add('active');
+  renderGuideStep();
+}
+function renderGuideStep() {
+  const i = guideIdx, s = GUIDE_STEPS[i];
+  document.getElementById('g-step').textContent = `Étape ${i+1} / ${GUIDE_STEPS.length}`;
+  document.getElementById('g-icon').textContent = s.icon;
+  document.getElementById('g-title').textContent = s.title;
+  document.getElementById('g-body').innerHTML = s.body;
+  document.getElementById('g-next').textContent = i === GUIDE_STEPS.length-1 ? '✅ Terminer' : 'Suivant →';
+  document.getElementById('g-dots').innerHTML = GUIDE_STEPS.map((_,j)=>`<span class="g-dot ${j===i?'active':''}"></span>`).join('');
+  const tip = document.getElementById('g-tooltip');
+  tip.classList.add('show');
+}
+function nextGuideStep() {
+  if (guideIdx < GUIDE_STEPS.length-1) { guideIdx++; renderGuideStep(); }
+  else endGuide();
+}
+function endGuide() {
+  document.getElementById('g-tooltip').classList.remove('show');
+  document.getElementById('guide-overlay').classList.remove('active');
+}
+
+// ══ INIT ══
+updateMonthLabel();
+fillDestDatalist();
+document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+document.getElementById('lot-date').value = new Date().toISOString().split('T')[0];
+addLotRow();
+document.getElementById('dep-date').value = new Date().toISOString().split('T')[0];
+
+// Charger depuis Supabase d'abord, puis afficher
+loadFromFirebase(() => {
+  renderAll();
+});
+</script>
+
+<!-- PWA INSTALL BUTTON -->
+<div id="pwa-install-btn" onclick="installPWA()" style="
+  display:none; position:fixed; bottom:80px; right:20px; z-index:888;
+  background:linear-gradient(135deg,#0B1F4A,#132860);
+  color:white; padding:12px 18px; border-radius:14px;
+  font-family:'DM Sans',sans-serif; font-weight:700; font-size:13px;
+  box-shadow:0 8px 24px rgba(11,31,74,.4); cursor:pointer;
+  align-items:center; gap:8px; border:1.5px solid rgba(245,197,24,.3);
+  animation:bounceIn .5s cubic-bezier(.34,1.56,.64,1);
+">
+  <span style="font-size:20px;">📲</span>
+  <div>
+    <div style="font-size:12px;">Installer l'application</div>
+    <div style="font-size:10px;color:rgba(255,255,255,.5);">Ajouter à l'écran d'accueil</div>
+  </div>
+</div>
+<style>@keyframes bounceIn{from{transform:scale(0) translateY(20px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}</style>
+
+</body>
+</html>
