@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B1F4A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="S Express">
+<link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjogIlMgRXhwcmVzcyBNZWRpY2FsIOKAlCBHZXN0aW9uIiwgInNob3J0X25hbWUiOiAiUyBFeHByZXNzIiwgInN0YXJ0X3VybCI6ICIuL2dlc3Rpb24uaHRtbCIsICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLCAib3JpZW50YXRpb24iOiAicG9ydHJhaXQiLCAiYmFja2dyb3VuZF9jb2xvciI6ICIjMEIxRjRBIiwgInRoZW1lX2NvbG9yIjogIiMwQjFGNEEiLCAibGFuZyI6ICJmciIsICJpY29ucyI6IFt7InNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWwsJTNDc3ZnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zycgdmlld0JveD0nMCAwIDE5MiAxOTInJTNFJTNDcmVjdCB3aWR0aD0nMTkyJyBoZWlnaHQ9JzE5Micgcng9JzMwJyBmaWxsPSclMjMwQjFGNEEnLyUzRSUzQ3RleHQgeT0nMTQwJyB4PSc5NicgZm9udC1zaXplPScxNTAnIGZvbnQtZmFtaWx5PSdBcmlhbCcgZm9udC13ZWlnaHQ9JzkwMCcgZmlsbD0nJTIzRTgzMDJBJyB0ZXh0LWFuY2hvcj0nbWlkZGxlJyUzRVMlM0MvdGV4dCUzRSUzQy9zdmclM0UiLCAic2l6ZXMiOiAiMTkyeDE5MiIsICJ0eXBlIjogImltYWdlL3N2Zyt4bWwifV19">
+<title>S Express Medical — Gestion</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--navy:#0B1F4A;--navy2:#132860;--red:#E8302A;--green:#27AE60;--gold:#F5C518;--bg:#F0F2F7;--line:#DDE1EC;--txt:#1A2340;--mut:#7a8499}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--txt);padding-bottom:calc(66px + env(safe-area-inset-bottom));font-size:15px}
+button,input,select{font:inherit;color:inherit}
+.top{position:sticky;top:0;z-index:50;background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;display:flex;align-items:center;gap:8px;padding:calc(8px + env(safe-area-inset-top)) 12px 8px;border-bottom:2px solid rgba(245,197,24,.25)}
+.brand{font-weight:800;letter-spacing:.5px;display:flex;align-items:baseline;gap:6px}
+.brand b{color:var(--red);font-size:26px}.brand small{color:#8fa0c8;font-weight:500;font-size:11px}
+.who{margin-left:auto;font-size:12px;color:#c9d3ee;text-align:right}
+.ib{background:rgba(255,255,255,.12);border:0;color:#fff;border-radius:8px;width:36px;height:36px;font-size:18px;cursor:pointer}
+.monthbar{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:calc(52px + env(safe-area-inset-top));z-index:40}
+.monthbar button{border:1px solid var(--line);background:var(--bg);border-radius:8px;width:36px;height:34px;font-size:18px}
+.monthbar span{font-weight:700;min-width:130px;text-align:center}
+.chip{font-style:normal;font-size:12px;padding:3px 8px;border-radius:99px;background:var(--bg)}
+.chip.lock{background:#fde8e7;color:#b3261e}.chip.open{background:#e3f6ea;color:#1e7a43}.chip.q{background:#fff3cd;color:#8a6d00}
+main{padding:10px 12px;max-width:760px;margin:0 auto}
+.card{background:#fff;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 10px rgba(11,31,74,.07)}
+.card h2{font-size:16px;margin-bottom:10px}
+label{display:block;font-size:12px;font-weight:600;color:var(--mut);margin:10px 0 4px}
+input,select,textarea{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;font-size:16px}
+input:focus,select:focus{outline:none;border-color:var(--navy)}
+.btn{width:100%;margin-top:14px;padding:13px;border:0;border-radius:11px;background:var(--navy);color:#fff;font-weight:700;cursor:pointer}
+.btn.big{background:var(--red);font-size:16px}.btn.alt{background:#fff;color:var(--navy);border:1.5px solid var(--navy)}
+.btn.warn{background:#b3261e}.btn:disabled{opacity:.5}
+.hint{font-size:12px;color:var(--mut);min-height:16px;margin-top:4px}
+.row{padding:10px 4px;border-bottom:1px solid var(--line);cursor:pointer}.row:last-child{border:0}
+.r1{display:flex;justify-content:space-between;gap:8px;font-weight:600}.r2{font-size:12px;color:var(--mut);margin-top:2px}.r3{font-size:11px;color:#a5adbd}
+.tag{font-size:11px;background:#fff3cd;color:#8a6d00;padding:2px 7px;border-radius:99px;font-weight:600;white-space:nowrap}
+.empty,.load{text-align:center;color:var(--mut);padding:30px 10px}
+.warnbar{background:#fff3cd;color:#6b5400;padding:8px 12px;font-size:13px;text-align:center}
+.tabs{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:60}
+.tabs button{flex:1;border:0;background:none;padding:8px 2px 7px;font-size:10.5px;color:var(--mut);position:relative;cursor:pointer}
+.tabs button span{display:block;font-size:20px}.tabs button.on{color:var(--navy);font-weight:700;box-shadow:inset 0 3px 0 var(--gold)}
+.tabs i{position:absolute;top:3px;right:18%;background:var(--red);color:#fff;font-style:normal;font-size:10px;border-radius:99px;padding:1px 5px}
+.modal{position:fixed;inset:0;background:rgba(10,20,50,.55);display:none;align-items:flex-end;justify-content:center;z-index:100}
+.modal.open{display:flex}
+.sheet{background:#fff;width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:18px 18px 0 0;padding:16px 16px calc(20px + env(safe-area-inset-bottom))}
+.sheet h2{margin-bottom:6px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.kpi{background:#fff;border-radius:12px;padding:12px;box-shadow:0 2px 10px rgba(11,31,74,.07)}.kpi b{display:block;font-size:20px;margin-top:2px}.kpi small{color:var(--mut)}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:6px 4px;border-bottom:1px solid var(--line)}td.n,th.n{text-align:right}
+.gh{display:flex;justify-content:space-between;margin-bottom:8px}.gh span{color:var(--mut);font-size:13px}
+.zs{display:flex;gap:6px}.z{flex:1;border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:8px 0;font-weight:700;cursor:pointer}.z small{display:block;font-weight:500;font-size:10px;color:var(--mut)}.z.on{border-color:var(--green);background:#e8f7ee}
+details{margin-top:10px}summary{font-size:13px;color:var(--navy);cursor:pointer}
+.ln{display:flex;gap:6px;align-items:center;margin-top:6px;font-size:12px}.ln span{flex:1}.ln input{width:90px;padding:7px}.ln button{padding:7px 10px;border:0;background:var(--navy);color:#fff;border-radius:8px}
+.req{background:#fff3f2;border:1px solid #f3c6c2;border-radius:10px;padding:10px;margin-bottom:8px;font-size:13px}.req .acts{display:flex;gap:8px;margin-top:6px}.req button{flex:1;padding:8px;border-radius:8px;border:0;background:var(--navy);color:#fff}
+.ck{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line)}.ok{color:#1e7a43}.ko{color:#b3261e;font-weight:700}
+.login{max-width:360px;margin:12vh auto 0;padding:24px;text-align:center}
+.login .logo{width:72px;height:72px;margin:0 auto 10px;border-radius:18px;background:var(--navy);color:var(--red);font-size:48px;font-weight:900;line-height:72px}
+.login input{margin-top:10px}.login p{color:var(--mut);margin:4px 0 12px}.err{color:#b3261e;margin-top:10px;font-size:14px}
+#toast{position:fixed;left:50%;bottom:calc(80px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);background:#1A2340;color:#fff;padding:10px 16px;border-radius:99px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:200;max-width:92vw;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.hist{font-size:12px;border-left:3px solid var(--gold);padding:4px 8px;margin:8px 0;background:#fafbff}
+</style>
+</head>
+<body>
+<div id="app"><div class="load">Chargement…</div></div>
+<div id="toast"></div>
+<div class="modal" id="modal" onclick="if(event.target===this)closeModal()"><div class="sheet" id="sheet"></div></div>
+<datalist id="dl-dest"></datalist>
+
+<script>
+'use strict';
+/* ════════════════════ CONFIG ════════════════════ */
+const SB_URL = "https://ynatpckhrclwzzcakilh.supabase.co";
+const SB_KEY = "sb_publishable_YhSt4ibzzob6TfgHQmpKEQ_ZiexF4B2";   // clé publique : la sécurité vient des règles de la base
+const sb = supabase.createClient(SB_URL, SB_KEY);
+
+const MOIS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+const CATS = ['Essence','Nourriture','Réparation','Téléphone','Salaire','Autre'];
+const STAT = { livre:'✅ Livré', encours:'🟡 En cours', echec:'❌ Échec' };
+const ROLE = { proprietaire:'Propriétaire', gestionnaire:'Gestionnaire', comptable:'Comptable' };
+const TABS = {
+  gestionnaire:[['saisie','➕','Saisie'],['liste','📋','Liste'],['dep','💸','Dépenses']],
+  proprietaire:[['saisie','➕','Saisie'],['liste','📋','Liste'],['tarifer','⏳','Prix'],['dep','💸','Dépenses'],['tab','📊','Tableau'],['clot','🔒','Clôture']],
+  comptable:[['liste','📋','Liste'],['dep','💸','Dépenses'],['tab','📊','Tableau']]
+};
+
+/* ════════════════════ ÉTAT ET OUTILS ════════════════════ */
+const S = { user:null, role:null, nom:'', annee:0, mois:0, clients:[], livreurs:[], dests:[], zones:[], periodes:{}, profils:{},
+            courses:[], depenses:[], tab:'saisie', memo:{}, f:{q:'',livreur:'',client:'',jour:'',n:80}, offline:false, _g:[] };
+const $ = id => document.getElementById(id);
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = n => Math.round(n||0).toLocaleString('fr-FR').replace(/[\u202f\u00a0]/g,' ');
+const pad = n => String(n).padStart(2,'0');
+const today = () => { const d=new Date(); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); };
+const fd = j => j.slice(8,10)+'/'+j.slice(5,7);
+const uuid = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return (c==='x'?r:(r&3|8)).toString(16);});
+const isNet = e => /fetch|network|load failed|timeout|offline/i.test(String((e&&e.message)||e||''));
+const msgErr = e => { const m=String((e&&e.message)||e||''); return /row-level security/i.test(m) ? "Action non autorisée pour votre compte." : m; };
+let _tt; const toast = m => { const t=$('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(_tt); _tt=setTimeout(()=>t.classList.remove('show'),3400); };
+const okq = async p => { const {data,error}=await p; if(error) throw error; return data; };
+async function fetchAll(build){ let out=[],from=0; for(;;){ const d=await okq(build(from,from+999)); out=out.concat(d); if(d.length<1000) break; from+=1000; } return out; }
+
+const nomClient = id => (S.clients.find(c=>c.id===id)||{}).nom || '?';
+const nomLivreur = id => id ? ((S.livreurs.find(l=>l.id===id)||{}).nom || '?') : '—';
+const tarif = c => { const t=c.g_tarification; return Array.isArray(t) ? (t[0]||null) : (t||null); };
+const destByName = n => S.dests.find(d => d.nom.toLowerCase()===String(n).trim().toLowerCase());
+const zoneTarif = z => (S.zones.find(x=>x.zone===z)||{}).tarif;
+const canPrix = () => S.role!=='gestionnaire';
+const cleMois = () => S.annee+'-'+pad(S.mois);
+const fermeeMois = () => S.periodes[cleMois()]==='cloture';
+const fermee = j => S.periodes[j.slice(0,7)]==='cloture';
+const bornes = () => { const k=cleMois(); return [k+'-01', k+'-'+pad(new Date(S.annee,S.mois,0).getDate())]; };
+const canEdit = c => !fermee(c.jour) && (S.role==='proprietaire' || (S.role==='gestionnaire' && c.saisi_par===S.user.id));
+const nbTarifer = () => S.role==='proprietaire' ? S.courses.filter(c=>!tarif(c)).length : 0;
+
+/* ════════════════════ FILE D'ATTENTE HORS CONNEXION ════════════════════ */
+const QK='g_file_attente', RK='g_rejets';
+const qGet = () => { try{return JSON.parse(localStorage.getItem(QK)||'[]');}catch(e){return [];} };
+const qSet = a => { localStorage.setItem(QK,JSON.stringify(a)); updBadge(); };
+function enqueue(type,p){ const a=qGet(); a.push({type,p,uid:S.user.id}); qSet(a); }
+function updBadge(){ const el=$('qb'); if(!el) return; const n=qGet().length; el.textContent=n?('⏳ '+n+' en attente'):''; el.className='chip'+(n?' q':''); }
+let _flushing=false;
+async function flushQueue(){
+  if(_flushing||!S.user) return; _flushing=true;
+  try{
+    const a=qGet(); if(!a.length) return;
+    const rest=[]; let ok=0; const rej=JSON.parse(localStorage.getItem(RK)||'[]');
+    for(const it of a){
+      if(it.uid!==S.user.id){ rest.push(it); continue; }
+      const r = it.type==='course' ? await saveCourse(it.p) : await saveDepense(it.p);
+      if(r.ok) ok++; else if(r.queued) rest.push(it); else rej.push({type:it.type,p:it.p,err:r.err});
+    }
+    qSet(rest); localStorage.setItem(RK,JSON.stringify(rej));
+    if(ok){ toast('✅ '+ok+' saisie(s) envoyée(s)'); await loadMonth(); }
+    if(ok||rej.length) renderView();
+  } finally { _flushing=false; }
+}
+
+/* ════════════════════ CONNEXION ════════════════════ */
+function showLogin(msg){
+  $('app').innerHTML = `<div class="login"><div class="logo">S</div><h1>S Express Medical</h1><p>Gestion des livraisons</p>
+   <input id="lg-mail" type="email" placeholder="E-mail" autocomplete="username">
+   <input id="lg-pass" type="password" placeholder="Mot de passe" autocomplete="current-password" onkeydown="if(event.key==='Enter')login()">
+   <button class="btn" onclick="login()">Se connecter</button><div class="err">${esc(msg||'')}</div></div>`;
+}
+async function login(){
+  const email=$('lg-mail').value.trim(), password=$('lg-pass').value; if(!email||!password) return;
+  const {error}=await sb.auth.signInWithPassword({email,password});
+  if(error){ showLogin(/invalid/i.test(error.message)?'E-mail ou mot de passe incorrect.':msgErr(error)); return; }
+  boot();
+}
+async function logout(){ await sb.auth.signOut(); S.user=null; localStorage.removeItem('g_cache'); showLogin(); }
+
+async function boot(){
+  $('app').innerHTML='<div class="load">Chargement…</div>';
+  const n=new Date(); S.annee=n.getFullYear(); S.mois=n.getMonth()+1;
+  try{
+    const {data:{session}}=await sb.auth.getSession();
+    if(!session){ showLogin(); return; }
+    S.user=session.user;
+    const {data:p,error}=await sb.from('g_profils').select('nom,role,actif').eq('id',S.user.id).maybeSingle();
+    if(error) throw error;
+    if(!p||!p.actif){ await sb.auth.signOut(); showLogin("Ce compte n'a pas d'accès. Contactez le propriétaire."); return; }
+    S.role=p.role; S.nom=p.nom; S.offline=false;
+    S.tab = S.role==='comptable' ? 'liste' : 'saisie';
+    await loadRef(); await loadMonth();
+    render(); flushQueue();
+  }catch(e){
+    const c = JSON.parse(localStorage.getItem('g_cache')||'null');
+    if(isNet(e) && c){   // mode hors connexion : on réutilise les listes mémorisées
+      Object.assign(S,c); S.offline=true; S.courses=[]; S.depenses=[]; S.tab=S.role==='comptable'?'liste':'saisie';
+      render(); return;
+    }
+    $('app').innerHTML=`<div class="load">Connexion impossible.<br><small>${esc(msgErr(e))}</small><br><button class="btn" onclick="boot()">Réessayer</button></div>`;
+  }
+}
+
+async function loadRef(){
+  S.clients = await okq(sb.from('g_clients').select('id,nom,actif').order('nom'));
+  S.livreurs = await okq(sb.from('g_livreurs').select('id,nom,actif').order('nom'));
+  S.dests = await okq(sb.from('g_destinations').select('id,nom,zone').order('nom').range(0,4999));
+  S.zones = S.role==='gestionnaire' ? [] : await okq(sb.from('g_zones').select('zone,libelle,tarif').order('zone'));
+  const per = await okq(sb.from('g_periodes').select('annee,mois,statut'));
+  S.periodes={}; per.forEach(p=>{ S.periodes[p.annee+'-'+pad(p.mois)]=p.statut; });
+  if(S.role==='proprietaire'){ S.profils={}; (await okq(sb.from('g_profils').select('id,nom'))).forEach(p=>S.profils[p.id]=p.nom); }
+  localStorage.setItem('g_cache',JSON.stringify({user:S.user,role:S.role,nom:S.nom,clients:S.clients,livreurs:S.livreurs,dests:S.dests,zones:S.zones,periodes:S.periodes}));
+  updDatalist();
+}
+function updDatalist(){ $('dl-dest').innerHTML = S.dests.map(d=>`<option value="${esc(d.nom)}">`).join(''); }
+
+async function loadMonth(){
+  const [d1,d2]=bornes();
+  S.courses = await fetchAll((a,b)=>sb.from('g_courses').select('*, g_tarification(zone,montant)').is('supprime_le',null)
+     .gte('jour',d1).lte('jour',d2).order('jour',{ascending:false}).order('created_at',{ascending:false}).order('id').range(a,b));
+  S.depenses = await fetchAll((a,b)=>sb.from('g_depenses').select('*').is('supprime_le',null)
+     .gte('jour',d1).lte('jour',d2).order('jour',{ascending:false}).order('created_at',{ascending:false}).order('id').range(a,b));
+}
+async function refresh(){ try{ await loadRef(); await loadMonth(); render(); flushQueue(); toast('↻ À jour'); }catch(e){ toast('⚠️ '+msgErr(e)); } }
+async function chgMois(d){
+  S.mois+=d; if(S.mois>12){S.mois=1;S.annee++;} if(S.mois<1){S.mois=12;S.annee--;}
+  $('view').innerHTML='<div class="load">Chargement…</div>';
+  try{ await loadMonth(); }catch(e){ toast('⚠️ '+msgErr(e)); }
+  render();
+}
+
+/* ════════════════════ STRUCTURE DE L'ÉCRAN ════════════════════ */
+function go(t){ S.tab=t; render(); window.scrollTo(0,0); }
+function render(){
+  const tabs=TABS[S.role], nt=nbTarifer();
+  $('app').innerHTML = `
+  <header class="top"><div class="brand"><b>S</b> Express <small>Gestion</small></div>
+    <div class="who">${esc(S.nom)}<br>${ROLE[S.role]}</div>
+    <button class="ib" onclick="refresh()" aria-label="Actualiser">↻</button><button class="ib" onclick="logout()" aria-label="Quitter">⎋</button></header>
+  ${S.offline?'<div class="warnbar">📴 Hors connexion — vos saisies sont gardées et envoyées au retour du réseau</div>':''}
+  <div class="monthbar"><button onclick="chgMois(-1)">‹</button><span>${MOIS[S.mois-1]} ${S.annee}</span><button onclick="chgMois(1)">›</button>
+    <em class="chip ${fermeeMois()?'lock':'open'}">${fermeeMois()?'🔒 Clôturé':'🟢 Ouvert'}</em><em id="qb" class="chip"></em></div>
+  <main id="view"></main>
+  <nav class="tabs">${tabs.map(t=>`<button class="${S.tab===t[0]?'on':''}" onclick="go('${t[0]}')"><span>${t[1]}</span>${t[2]}${t[0]==='tarifer'&&nt?`<i>${nt}</i>`:''}</button>`).join('')}</nav>`;
+  renderView(); updBadge();
+}
+function renderView(){
+  ({saisie:renderSaisie,liste:renderListe,tarifer:renderTarifer,dep:renderDep,tab:renderTab,clot:renderClot})[S.tab]();
+}
+function openModal(h){ $('sheet').innerHTML=h; $('modal').classList.add('open'); }
+function closeModal(){ $('modal').classList.remove('open'); }
+
+/* ════════════════════ SAISIE D'UNE COURSE ════════════════════ */
+const optsClients = (sel,all) => S.clients.filter(c=>all||c.actif||c.id===sel).map(c=>`<option value="${c.id}" ${sel===c.id?'selected':''}>${esc(c.nom)}${c.actif?'':' (inactif)'}</option>`).join('');
+const optsLivreurs = (sel,vide) => `<option value="">${vide||'— Choisir —'}</option>` + S.livreurs.filter(l=>l.actif||l.id===sel).map(l=>`<option value="${l.id}" ${sel===l.id?'selected':''}>${esc(l.nom)}${l.actif?'':' (ancien)'}</option>`).join('');
+const optsStatut = sel => Object.entries(STAT).map(([k,v])=>`<option value="${k}" ${sel===k?'selected':''}>${v}</option>`).join('');
+
+function renderSaisie(){
+  const m=S.memo;
+  $('view').innerHTML = `<section class="card"><h2>Nouvelle course</h2>
+    <label>Date</label><input type="date" id="f-date" value="${m.jour||today()}">
+    <label>Client</label><select id="f-client"><option value="">— Choisir —</option>${optsClients(m.client)}</select>
+    <label>Destination</label><input id="f-dest" list="dl-dest" autocomplete="off" placeholder="Sogoniko, ACI 2000…" oninput="hintZone()">
+    <div class="hint" id="hint"></div>
+    <label>Livreur</label><select id="f-livreur">${optsLivreurs(m.livreur)}</select>
+    <label>Statut</label><select id="f-statut">${optsStatut(m.statut||'livre')}</select>
+    <label>Note (facultatif)</label><input id="f-note" autocomplete="off">
+    <button class="btn big" id="f-add" onclick="addCourse()">+ Ajouter la course</button></section>
+   <section class="card"><h2>Mes dernières saisies</h2><div id="recent"></div></section>`;
+  refreshRecent();
+}
+function hintZone(){
+  const v=$('f-dest').value.trim(), d=v?destByName(v):null, h=$('hint');
+  if(!v){ h.textContent=''; return; }
+  if(S.role==='gestionnaire') h.textContent = d ? '✔ Destination connue' : 'Nouvelle destination : le prix sera fixé par la direction.';
+  else h.textContent = d && d.zone ? `Zone ${d.zone} · ${fmt(zoneTarif(d.zone))} F` : (d ? 'Destination connue, zone à définir' : 'Nouvelle destination');
+}
+async function addCourse(){
+  const p={id:uuid(),jour:$('f-date').value,client_id:$('f-client').value,dest:$('f-dest').value.trim().replace(/\s+/g,' '),
+           livreur_id:$('f-livreur').value||null,statut:$('f-statut').value,note:$('f-note').value.trim()||null};
+  if(!p.jour||!p.client_id||!p.dest) return toast('Date, client et destination sont obligatoires.');
+  if(fermee(p.jour)) return toast('🔒 Ce mois est clôturé.');
+  S.memo={jour:p.jour,client:p.client_id,livreur:p.livreur_id,statut:p.statut};
+  const b=$('f-add'); b.disabled=true;
+  const r=await saveCourse(p); b.disabled=false;
+  if(r.err) return toast('⚠️ '+msgErr(r.err));
+  if(r.queued){ enqueue('course',p); toast('📴 Pas de réseau : course mise en attente.'); }
+  else toast('✅ Enregistrée'+(r.bon?' — '+r.bon:''));
+  const [d1,d2]=bornes();
+  if(r.ok && p.jour>=d1 && p.jour<=d2)
+    S.courses.unshift({id:p.id,bon:r.bon||'…',jour:p.jour,client_id:p.client_id,destination:p.dest,livreur_id:p.livreur_id,statut:p.statut,note:p.note,
+                       saisi_par:S.user.id,created_at:new Date().toISOString(),demande_suppression:false,g_tarification:null});
+  $('f-dest').value=''; $('f-note').value=''; $('hint').textContent=''; $('f-dest').focus();
+  refreshRecent(); if(S.role==='proprietaire') updTabsBadge();
+}
+function updTabsBadge(){
+  const btn=[...document.querySelectorAll('.tabs button')].find(b=>b.getAttribute('onclick')==="go('tarifer')"); if(!btn) return;
+  let i=btn.querySelector('i'); const n=nbTarifer();
+  if(n){ if(!i){ i=document.createElement('i'); btn.appendChild(i); } i.textContent=n; } else if(i) i.remove();
+}
+async function saveCourse(p){
+  try{
+    const {data,error}=await sb.from('g_courses').insert({id:p.id,jour:p.jour,client_id:p.client_id,destination:p.dest,livreur_id:p.livreur_id,statut:p.statut,note:p.note}).select('id,bon').single();
+    if(error){ if(error.code==='23505') return {ok:true}; throw error; }
+    return {ok:true,bon:data.bon};
+  }catch(e){ return isNet(e) ? {queued:true} : {err:msgErr(e)}; }
+}
+function refreshRecent(){
+  const el=$('recent'); if(!el) return;
+  const mine=S.courses.filter(c=>c.saisi_par===S.user.id).sort((a,b)=>String(b.created_at).localeCompare(String(a.created_at))).slice(0,12);
+  const att=qGet().filter(i=>i.type==='course').map(i=>`<div class="row"><div class="r1"><span>${esc(i.p.dest)}</span><span class="tag">⏳ en attente</span></div><div class="r2">${fd(i.p.jour)} · ${esc(nomClient(i.p.client_id))}</div></div>`).join('');
+  el.innerHTML = att + (mine.map(rowHTML).join('') || '<p class="empty">Aucune saisie ce mois-ci.</p>');
+}
+function rowHTML(c){
+  const t=tarif(c);
+  const px = canPrix() ? (t ? `<b>${fmt(t.montant)} F</b>` : '<span class="tag">⏳ à tarifer</span>') : '';
+  return `<div class="row" onclick="openCourse('${c.id}')"><div class="r1"><span>${esc(c.destination)}</span>${px}</div>
+    <div class="r2">${fd(c.jour)} · ${esc(nomClient(c.client_id))} · ${esc(nomLivreur(c.livreur_id))} · ${STAT[c.statut]||''}${c.demande_suppression?' · 🗑️ suppression demandée':''}</div>
+    <div class="r3">${esc(c.bon)}${S.role==='proprietaire'&&c.saisi_par&&S.profils[c.saisi_par]?' · saisi par '+esc(S.profils[c.saisi_par]):''}</div></div>`;
+}
+
+/* ════════════════════ LISTE, MODIFICATION, SUPPRESSION ════════════════════ */
+function renderListe(){
+  const demandes = S.role==='proprietaire' ? S.courses.filter(c=>c.demande_suppression) : [];
+  const rej = JSON.parse(localStorage.getItem(RK)||'[]');
+  $('view').innerHTML = `
+   ${rej.length?`<div class="req">⚠️ ${rej.length} saisie(s) refusée(s) par le serveur : ${esc(rej.map(r=>r.err).join(' | ').slice(0,200))}<div class="acts"><button onclick="localStorage.removeItem('${RK}');renderListe()">Effacer</button></div></div>`:''}
+   ${demandes.map(c=>`<div class="req"><b>🗑️ Suppression demandée</b> — ${esc(c.destination)} (${fd(c.jour)}, ${esc(nomClient(c.client_id))})<br><i>${esc(c.motif_suppression||'sans motif')}</i>
+      <div class="acts"><button onclick="decideDel('${c.id}',true)">Supprimer</button><button onclick="decideDel('${c.id}',false)">Garder</button></div></div>`).join('')}
+   <section class="card"><input id="q" placeholder="🔎 Rechercher (destination, bon…)" value="${esc(S.f.q)}" oninput="S.f.q=this.value;S.f.n=80;drawList()">
+    <div class="two"><select onchange="S.f.client=this.value;S.f.n=80;drawList()"><option value="">Tous les clients</option>${S.clients.map(c=>`<option value="${c.id}" ${S.f.client===c.id?'selected':''}>${esc(c.nom)}</option>`).join('')}</select>
+    <select onchange="S.f.livreur=this.value;S.f.n=80;drawList()"><option value="">Tous les livreurs</option>${S.livreurs.map(l=>`<option value="${l.id}" ${S.f.livreur===l.id?'selected':''}>${esc(l.nom)}</option>`).join('')}</select></div>
+    <input type="date" value="${S.f.jour}" onchange="S.f.jour=this.value;S.f.n=80;drawList()" style="margin-top:8px"></section>
+   <section class="card" id="list"></section>`;
+  drawList();
+}
+function filtered(){
+  const f=S.f, q=f.q.trim().toLowerCase();
+  return S.courses.filter(c => (!f.client||c.client_id===f.client) && (!f.livreur||c.livreur_id===f.livreur) && (!f.jour||c.jour===f.jour)
+     && (!q || c.destination.toLowerCase().includes(q) || String(c.bon).toLowerCase().includes(q)));
+}
+function drawList(){
+  const el=$('list'); if(!el) return;
+  const l=filtered(), tot=l.reduce((s,c)=>s+(tarif(c)?tarif(c).montant:0),0);
+  el.innerHTML = `<div class="gh"><b>${l.length} course${l.length>1?'s':''}</b>${canPrix()?`<span>${fmt(tot)} F</span>`:''}</div>`
+    + (l.slice(0,S.f.n).map(rowHTML).join('') || '<p class="empty">Aucune course.</p>')
+    + (l.length>S.f.n?`<button class="btn alt" onclick="S.f.n+=100;drawList()">Afficher plus (${l.length-S.f.n} restantes)</button>`:'');
+}
+function openCourse(id){
+  const c=S.courses.find(x=>x.id===id); if(!c) return;
+  const ed=canEdit(c), own=S.role==='proprietaire', t=tarif(c), dis=ed?'':'disabled';
+  openModal(`<h2>${esc(c.bon)}</h2><div class="hint">${ed?'':(fermee(c.jour)?'🔒 Mois clôturé : lecture seule.':'Lecture seule.')}</div>
+   <label>Date</label><input type="date" id="e-date" value="${c.jour}" ${dis}>
+   <label>Client</label><select id="e-client" ${dis}>${optsClients(c.client_id,true)}</select>
+   <label>Destination</label><input id="e-dest" list="dl-dest" value="${esc(c.destination)}" ${dis}>
+   <label>Livreur</label><select id="e-livreur" ${dis}>${optsLivreurs(c.livreur_id)}</select>
+   <label>Statut</label><select id="e-statut" ${dis}>${optsStatut(c.statut)}</select>
+   <label>Note</label><input id="e-note" value="${esc(c.note||'')}" ${dis}>
+   ${own&&ed?`<div class="two"><div><label>Zone</label><select id="e-zone"><option value="">—</option>${S.zones.map(z=>`<option value="${z.zone}" ${t&&t.zone===z.zone?'selected':''}>Zone ${z.zone} · ${fmt(z.tarif)}</option>`).join('')}</select></div>
+      <div><label>Montant (F)</label><input type="number" inputmode="numeric" id="e-montant" value="${t?t.montant:''}"></div></div>`
+     : (canPrix()?`<label>Prix</label><div><b>${t?fmt(t.montant)+' F':'⏳ à tarifer'}</b></div>`:'')}
+   ${ed?`<button class="btn" onclick="saveEdit('${c.id}')">Enregistrer</button>`:''}
+   ${ed&&own?`<button class="btn warn" onclick="deleteCourse('${c.id}')">Supprimer cette course</button>`:''}
+   ${ed&&S.role==='gestionnaire'&&!c.demande_suppression?`<button class="btn warn" onclick="askDelete('${c.id}')">Demander la suppression</button>`:''}
+   ${S.role!=='gestionnaire'?`<button class="btn alt" onclick="showHistory('${c.id}')">🕘 Historique des modifications</button>`:''}
+   <button class="btn alt" onclick="closeModal()">Fermer</button><div id="hist"></div>`);
+}
+async function saveEdit(id){
+  const c=S.courses.find(x=>x.id===id);
+  const upd={jour:$('e-date').value,client_id:$('e-client').value,destination:$('e-dest').value.trim().replace(/\s+/g,' '),
+             livreur_id:$('e-livreur').value||null,statut:$('e-statut').value,note:$('e-note').value.trim()||null};
+  if(!upd.jour||!upd.client_id||!upd.destination) return toast('Date, client et destination sont obligatoires.');
+  try{
+    const d=await okq(sb.from('g_courses').update(upd).eq('id',id).select('id'));
+    if(!d.length) return toast('⚠️ Modification refusée (ligne d’un autre ou mois clôturé).');
+    if(S.role==='proprietaire') await saveTarifEdit(c);
+    Object.assign(c,upd);
+    const [d1,d2]=bornes(); if(upd.jour<d1||upd.jour>d2) S.courses=S.courses.filter(x=>x.id!==id);
+    closeModal(); render(); toast('✅ Modifié');
+  }catch(e){ toast('⚠️ '+msgErr(e)); }
+}
+async function saveTarifEdit(c){
+  const z=$('e-zone').value?+$('e-zone').value:null, raw=$('e-montant').value.trim(); let m=raw===''?null:+raw;
+  if(m===null && z) m=zoneTarif(z);
+  if(m===null){ if(tarif(c)){ await okq(sb.from('g_tarification').delete().eq('course_id',c.id).select('course_id')); c.g_tarification=null; } return; }
+  await okq(sb.from('g_tarification').upsert({course_id:c.id,zone:z,montant:m},{onConflict:'course_id'}).select('course_id'));
+  c.g_tarification={zone:z,montant:m};
+}
+async function deleteCourse(id){
+  if(!confirm('Supprimer cette course ? (récupérable dans le journal)')) return;
+  try{ const d=await okq(sb.from('g_courses').update({supprime_le:new Date().toISOString()}).eq('id',id).select('id'));
+       if(!d.length) return toast('⚠️ Suppression refusée.');
+       S.courses=S.courses.filter(x=>x.id!==id); closeModal(); render(); toast('🗑️ Supprimée'); }
+  catch(e){ toast('⚠️ '+msgErr(e)); }
+}
+async function askDelete(id){
+  const motif=prompt('Motif de la demande de suppression :'); if(!motif) return;
+  try{ const d=await okq(sb.from('g_courses').update({demande_suppression:true,motif_suppression:motif}).eq('id',id).select('id'));
+       if(!d.length) return toast('⚠️ Demande refusée.');
+       const c=S.courses.find(x=>x.id===id); c.demande_suppression=true; c.motif_suppression=motif; closeModal(); render(); toast('📨 Demande envoyée'); }
+  catch(e){ toast('⚠️ '+msgErr(e)); }
+}
+async function decideDel(id,yes){
+  try{ const upd = yes ? {supprime_le:new Date().toISOString()} : {demande_suppression:false,motif_suppression:null};
+       await okq(sb.from('g_courses').update(upd).eq('id',id).select('id'));
+       if(yes) S.courses=S.courses.filter(x=>x.id!==id); else { const c=S.courses.find(x=>x.id===id); c.demande_suppression=false; }
+       render(); toast(yes?'🗑️ Supprimée':'Conservée'); }
+  catch(e){ toast('⚠️ '+msgErr(e)); }
+}
+async function showHistory(id){
+  try{
+    const rows=await okq(sb.from('g_audit').select('le,par,action,table_nom,avant,apres').in('table_nom',['g_courses','g_tarification']).eq('ligne_ref',id).order('le',{ascending:false}).limit(30));
+    const pretty=(k,v)=>k==='client_id'?nomClient(v):k==='livreur_id'?nomLivreur(v):(v==null?'∅':v);
+    $('hist').innerHTML = rows.map(r=>{
+      let d='';
+      if(r.action==='UPDATE'){ d=Object.keys(r.apres||{}).filter(k=>!['updated_at','modifie_par'].includes(k)&&JSON.stringify(r.apres[k])!==JSON.stringify((r.avant||{})[k])).map(k=>`${esc(k)} : ${esc(pretty(k,(r.avant||{})[k]))} → ${esc(pretty(k,r.apres[k]))}`).join('<br>'); }
+      else d = r.action==='INSERT' ? 'Création' : 'Suppression';
+      return `<div class="hist"><b>${new Date(r.le).toLocaleString('fr-FR')}</b> · ${esc(S.profils[r.par]||'utilisateur')} · ${esc(r.table_nom==='g_tarification'?'prix':'course')}<br>${d||'—'}</div>`;
+    }).join('') || '<p class="empty">Aucune modification enregistrée.</p>';
+  }catch(e){ toast('⚠️ '+msgErr(e)); }
+}
+
+/* ════════════════════ TARIFICATION (propriétaire) ════════════════════ */
+async function upsertTarifs(rows){
+  for(let i=0;i<rows.length;i+=200) await okq(sb.from('g_tarification').upsert(rows.slice(i,i+200),{onConflict:'course_id'}).select('course_id'));
+}
+async function setDestZone(nom,z){
+  const d=destByName(nom);
+  if(d){ if(d.zone===z) return; await okq(sb.from('g_destinations').update({zone:z}).eq('id',d.id).select('id')); d.zone=z; }
+  else { const r=await okq(sb.from('g_destinations').insert({nom:nom.trim(),zone:z}).select('id,nom,zone').single()); S.dests.push(r); updDatalist(); }
+}
+function renderTarifer(){
+  const todo=S.courses.filter(c=>!tarif(c)), g={};
+  todo.forEach(c=>{ const k=c.destination.trim().toLowerCase(); (g[k]=g[k]||{nom:c.destination.trim(),items:[]}).items.push(c); });
+  S._g=Object.values(g).sort((a,b)=>b.items.length-a.items.length);
+  S._g.forEach(x=>{ const d=destByName(x.nom); x.zone=d?d.zone:null; });
+  const connus=S._g.filter(x=>x.zone).reduce((s,x)=>s+x.items.length,0);
+  if(!todo.length){ $('view').innerHTML='<p class="empty">🎉 Toutes les courses de ce mois sont tarifées.</p>'; return; }
+  $('view').innerHTML = `<section class="card"><h2>⏳ ${todo.length} course${todo.length>1?'s':''} à tarifer · ${S._g.length} destination${S._g.length>1?'s':''}</h2>
+     <div class="hint">Touchez une zone : toutes les courses de cette destination sont tarifées, et l'application retient la zone.</div>
+     ${connus?`<button class="btn" onclick="appliquerConnues()">⚡ Appliquer les zones connues (${connus} courses)</button>`:''}</section>`
+   + S._g.slice(0,60).map((x,i)=>`<section class="card"><div class="gh"><b>${esc(x.nom)}</b><span>${x.items.length} course${x.items.length>1?'s':''}</span></div>
+     <div class="zs">${S.zones.map(z=>`<button class="z ${x.zone===z.zone?'on':''}" onclick="tarifGroupe(${i},${z.zone})">Z${z.zone}<small>${fmt(z.tarif)}</small></button>`).join('')}</div>
+     <details><summary>Prix personnalisé par ligne</summary>${x.items.slice(0,30).map(c=>`<div class="ln"><span>${fd(c.jour)} · ${esc(nomClient(c.client_id))} · ${esc(nomLivreur(c.livreur_id))}</span><input type="number" inputmode="numeric" id="p-${c.id}" placeholder="F"><button onclick="tarifLigne('${c.id}')">OK</button></div>`).join('')}</details></section>`).join('')
+   + (S._g.length>60?`<p class="empty">… et ${S._g.length-60} autres destinations (tarifez celles-ci d'abord).</p>`:'');
+}
+async function tarifGroupe(i,z){
+  const g=S._g[i], tz=zoneTarif(z);
+  if(!confirm(`Tarifer ${g.items.length} course(s) « ${g.nom} » en zone ${z} (${fmt(tz)} F) ?`)) return;
+  try{ await upsertTarifs(g.items.map(c=>({course_id:c.id,zone:z,montant:tz}))); await setDestZone(g.nom,z);
+       g.items.forEach(c=>c.g_tarification={zone:z,montant:tz}); toast('✅ '+g.items.length+' course(s) tarifée(s)'); render(); }
+  catch(e){ toast('⚠️ '+msgErr(e)); }
+}
+async function appliquerConnues(){
+  const rows=[]; S._g.filter(x=>x.zone).forEach(x=>x.items.forEach(c=>rows.push({course_id:c.id,zone:x.zone,montant:zoneTarif(x.zone),c})));
+  if(!confirm(`Tarifer ${rows.length} course(s) avec les zones déjà connues ?`)) return;
+  try{ await upsertTarifs(rows.map(r=>({course_id:r.course_id,zone:r.zone,montant:r.montant}))); rows.forEach(r=>r.c.g_tarification={zone:r.zone,montant:r.montant}); toast('✅ '+rows.length+' tarifées'); render(); }
+  catch(e){ toast('⚠️ '+msgErr(e)); }
+}
+async function tarifLigne(id){
+  const v=$('p-'+id).value.trim(); if(v===''||isNaN(+v)) return toast('Saisissez un montant.');
+  try{ await upsertTarifs([{course_id:id,zone:null,montant:+v}]); S.courses.find(c=>c.id===id).g_tarification={zone:null,montant:+v}; render(); toast('✅ Tarifée'); }
+  catch(e){ toast('⚠️ '+msgErr(e)); }
+}
+
+/* ════════════════════ DÉPENSES ════════════════════ */
+function renderDep(){
+  const tot=S.depenses.reduce((s,d)=>s+d.montant,0), att=qGet().filter(i=>i.type==='dep');
+  $('view').innerHTML = `<section class="card"><h2>Nouvelle dépense</h2>
+    <div class="two"><div><label>Date</label><input type="date" id="d-date" value="${today()}"></div><div><label>Montant (F)</label><input type="number" inputmode="numeric" id="d-montant"></div></div>
+    <label>Catégorie</label><select id="d-cat">${CATS.map(c=>`<option>${c}</option>`).join('')}</select>
+    <label>Description</label><input id="d-desc" autocomplete="off" placeholder="ex. essence moto Demba">
+    <label>Livreur concerné (facultatif)</label><select id="d-liv">${optsLivreurs(null,'— Aucun —')}</select>
+    <label style="display:flex;gap:8px;align-items:center;margin-top:12px"><input type="checkbox" id="d-brouillon" style="width:auto"> À compléter plus tard (saisie éclair)</label>
+    <button class="btn big" id="d-add" onclick="addDep()">+ Ajouter la dépense</button></section>
+   <section class="card"><div class="gh"><b>${S.depenses.length} dépense${S.depenses.length>1?'s':''}</b><span>${fmt(tot)} F</span></div>
+    ${att.map(i=>`<div class="row"><div class="r1"><span>${esc(i.p.description||i.p.categorie)}</span><span class="tag">⏳ en attente</span></div></div>`).join('')}
+    ${S.depenses.map(d=>`<div class="row" onclick="openDep('${d.id}')"><div class="r1"><span>${esc(d.description||'(sans description)')}</span><b>${fmt(d.montant)} F</b></div>
+      <div class="r2">${fd(d.jour)} · ${esc(d.categorie||'')} · ${esc(nomLivreur(d.livreur_id))}${d.brouillon?' · <span class="tag">à compléter</span>':''}</div></div>`).join('') || '<p class="empty">Aucune dépense ce mois-ci.</p>'}</section>`;
+}
+async function saveDepense(p){
+  try{
+    const {data,error}=await sb.from('g_depenses').insert({id:p.id,jour:p.jour,montant:p.montant,categorie:p.categorie,description:p.description,livreur_id:p.livreur_id,brouillon:p.brouillon}).select('*').single();
+    if(error){ if(error.code==='23505') return {ok:true}; throw error; }
+    return {ok:true,row:data};
+  }catch(e){ return isNet(e) ? {queued:true} : {err:msgErr(e)}; }
+}
+async function addDep(){
+  const p={id:uuid(),jour:$('d-date').value,montant:parseInt($('d-montant').value,10),categorie:$('d-cat').value,description:$('d-desc').value.trim(),
+           livreur_id:$('d-liv').value||null,brouillon:$('d-brouillon').checked};
+  if(!p.jour||isNaN(p.montant)||p.montant<0) return toast('Date et montant sont obligatoires.');
+  if(fermee(p.jour)) return toast('🔒 Ce mois est clôturé.');
+  $('d-add').disabled=true; const r=await saveDepense(p); $('d-add').disabled=false;
+  if(r.err) return toast('⚠️ '+msgErr(r.err));
+  if(r.queued){ enqueue('dep',p); toast('📴 Pas de réseau : dépense mise en attente.'); }
+  else { toast('✅ Dépense enregistrée'); const [d1,d2]=bornes(); if(r.row && p.jour>=d1 && p.jour<=d2) S.depenses.unshift(r.row); }
+  renderDep();
+}
+function openDep(id){
+  const d=S.depenses.find(x=>x.id===id); if(!d) return;
+  const ed=!fermee(d.jour) && (S.role!=='gestionnaire' || d.saisi_par===S.user.id), dis=ed?'':'disabled';
+  openModal(`<h2>Dépense</h2><div class="hint">${ed?'':'🔒 Lecture seule.'}</div>
+   <div class="two"><div><label>Date</label><input type="date" id="x-date" value="${d.jour}" ${dis}></div><div><label>Montant (F)</label><input type="number" id="x-montant" value="${d.montant}" ${dis}></div></div>
+   <label>Catégorie</label><select id="x-cat" ${dis}>${CATS.map(c=>`<option ${c===d.categorie?'selected':''}>${c}</option>`).join('')}</select>
+   <label>Description</label><input id="x-desc" value="${esc(d.description)}" ${dis}>
+   <label>Livreur</label><select id="x-liv" ${dis}>${optsLivreurs(d.livreur_id,'— Aucun —')}</select>
+   <label style="display:flex;gap:8px;align-items:center;margin-top:12px"><input type="checkbox" id="x-brouillon" style="width:auto" ${d.brouillon?'checked':''} ${dis}> À compléter</label>
+   ${ed?`<button class="btn" onclick="saveDepEdit('${d.id}')">Enregistrer</button>`:''}
+   ${ed&&S.role==='proprietaire'?`<button class="btn warn" onclick="delDep('${d.id}')">Supprimer</button>`:''}
+   <button class="btn alt" onclick="closeModal()">Fermer</button>`);
+}
+async function saveDepEdit(id){
+  const upd={jour:$('x-date').value,montant:parseInt($('x-montant').value,10),categorie:$('x-cat').value,description:$('x-desc').value.trim(),livreur_id:$('x-liv').value||null,brouillon:$('x-brouillon').checked};
+  if(!upd.jour||isNaN(upd.montant)) return toast('Date et montant sont obligatoires.');
+  try{ const r=await okq(sb.from('g_depenses').update(upd).eq('id',id).select('id')); if(!r.length) return toast('⚠️ Modification refusée.');
+       Object.assign(S.depenses.find(x=>x.id===id),upd); closeModal(); renderDep(); toast('✅ Modifiée'); }
+  catch(e){ toast('⚠️ '+msgErr(e)); }
+}
+async function delDep(id){
+  if(!confirm('Supprimer cette dépense ?')) return;
+  try{ await okq(sb.from('g_depenses').update({supprime_le:new Date().toISOString()}).eq('id',id).select('id')); S.depenses=S.depenses.filter(x=>x.id!==id); closeModal(); renderDep(); toast('🗑️ Supprimée'); }
+  catch(e){ toast('⚠️ '+msgErr(e)); }
+}
+
+/* ════════════════════ TABLEAU DE BORD + EXPORT ════════════════════ */
+function renderTab(){
+  const cs=S.courses, ca=cs.reduce((s,c)=>s+(tarif(c)?tarif(c).montant:0),0), dep=S.depenses.reduce((s,d)=>s+d.montant,0), att=cs.filter(c=>!tarif(c)).length;
+  const grp=(keyFn)=>{ const o={}; cs.forEach(c=>{ const k=keyFn(c); const m=tarif(c)?tarif(c).montant:0; (o[k]=o[k]||{n:0,m:0}).n++; o[k].m+=m; }); return Object.entries(o).sort((a,b)=>b[1].m-a[1].m||b[1].n-a[1].n); };
+  const tbl=(rows)=>`<table><tr><th></th><th class="n">Courses</th><th class="n">Montant</th><th class="n">%</th></tr>${rows.map(([k,v])=>`<tr><td>${esc(k)}</td><td class="n">${v.n}</td><td class="n">${fmt(v.m)}</td><td class="n">${ca?Math.round(v.m/ca*100):0}%</td></tr>`).join('')}</table>`;
+  $('view').innerHTML = `<div class="kpis"><div class="kpi"><small>Courses</small><b>${cs.length}</b></div><div class="kpi"><small>Chiffre d'affaires</small><b>${fmt(ca)} F</b></div>
+    <div class="kpi"><small>Dépenses</small><b>${fmt(dep)} F</b></div><div class="kpi"><small>CA − dépenses</small><b>${fmt(ca-dep)} F</b></div></div>
+    ${att?`<div class="req">⏳ ${att} course(s) pas encore tarifée(s) : le chiffre d'affaires est incomplet.</div>`:''}
+    <section class="card"><h2>Par client</h2>${tbl(grp(c=>nomClient(c.client_id)))}</section>
+    <section class="card"><h2>Par livreur</h2>${tbl(grp(c=>nomLivreur(c.livreur_id)))}</section>
+    <section class="card"><h2>Exporter pour Excel</h2><button class="btn" onclick="exportCourses()">⬇️ Courses du mois (CSV)</button><button class="btn alt" onclick="exportDep()">⬇️ Dépenses du mois (CSV)</button></section>`;
+}
+function dl(name,rows){
+  const csv='\ufeff'+rows.map(r=>r.map(v=>{ v=v==null?'':String(v); return /[;"\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; }).join(';')).join('\r\n');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})); a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+function exportCourses(){
+  dl(`courses_${cleMois()}.csv`, [['Date','Bon','Client','Destination','Livreur','Statut','Zone','Montant (F)','Note']]
+    .concat([...S.courses].sort((a,b)=>a.jour.localeCompare(b.jour)||String(a.bon).localeCompare(String(b.bon))).map(c=>{ const t=tarif(c); return [c.jour,c.bon,nomClient(c.client_id),c.destination,nomLivreur(c.livreur_id),c.statut,t&&t.zone?t.zone:'',t?t.montant:'',c.note||'']; })));
+}
+function exportDep(){
+  dl(`depenses_${cleMois()}.csv`, [['Date','Catégorie','Description','Livreur','Montant (F)','À compléter']]
+    .concat([...S.depenses].sort((a,b)=>a.jour.localeCompare(b.jour)).map(d=>[d.jour,d.categorie||'',d.description,nomLivreur(d.livreur_id),d.montant,d.brouillon?'oui':''])));
+}
+
+/* ════════════════════ CLÔTURE DU MOIS (propriétaire) ════════════════════ */
+function renderClot(){
+  const cs=S.courses, deps=S.depenses, fer=fermeeMois();
+  const items=[
+    ['Courses à tarifer', cs.filter(c=>!tarif(c)).length, true],
+    ['Demandes de suppression en attente', cs.filter(c=>c.demande_suppression).length, true],
+    ['Dépenses « à compléter »', deps.filter(d=>d.brouillon).length, true],
+    ['Courses « en cours » ou « échec »', cs.filter(c=>c.statut!=='livre').length, false],
+    ['Dépenses saisies ce mois', deps.length, null]
+  ];
+  const bloquants=items.filter(i=>i[2]===true&&i[1]>0).length, sansDep=deps.length===0;
+  $('view').innerHTML = `<section class="card"><h2>Clôture de ${MOIS[S.mois-1]} ${S.annee}</h2>
+   ${items.map(i=>`<div class="ck"><span>${i[0]}</span><span class="${i[2]===null?'':(i[1]>0&&i[2]?'ko':'ok')}">${i[2]===null?i[1]:(i[1]>0?i[1]:'✔ 0')}</span></div>`).join('')}
+   ${sansDep?'<div class="hint">⚠️ Aucune dépense saisie ce mois-ci.</div>':''}
+   ${fer?`<p style="margin-top:12px">🔒 Ce mois est <b>clôturé</b> : plus aucune modification possible.</p><button class="btn warn" onclick="setPeriode('ouvert')">Rouvrir ce mois</button>`
+        :`<button class="btn big" onclick="setPeriode('cloture',${bloquants},${sansDep})">🔒 Clôturer ${MOIS[S.mois-1]}</button>`}</section>
+   <section class="card"><h2>Mois clôturés</h2>${Object.entries(S.periodes).filter(([k,v])=>v==='cloture').sort().map(([k])=>`<div class="ck"><span>${MOIS[+k.slice(5)-1]} ${k.slice(0,4)}</span><span>🔒</span></div>`).join('')||'<p class="empty">Aucun mois clôturé.</p>'}</section>`;
+}
+async function setPeriode(statut,bloq,sansDep){
+  if(statut==='cloture'){
+    let m='Clôturer '+MOIS[S.mois-1]+' ? Plus personne ne pourra modifier les courses, prix et dépenses de ce mois.';
+    if(bloq) m='⚠️ '+bloq+' point(s) restent à traiter.\n\n'+m;
+    if(sansDep) m+='\n\n(Aucune dépense n’est saisie ce mois-ci.)';
+    if(!confirm(m)) return;
+  } else if(!confirm('Rouvrir ce mois ?')) return;
+  try{
+    await okq(sb.from('g_periodes').upsert({annee:S.annee,mois:S.mois,statut,cloture_le:statut==='cloture'?new Date().toISOString():null,cloture_par:S.user.id},{onConflict:'annee,mois'}).select('annee'));
+    S.periodes[cleMois()]=statut; render(); toast(statut==='cloture'?'🔒 Mois clôturé':'🟢 Mois rouvert');
+  }catch(e){ toast('⚠️ '+msgErr(e)); }
+}
+
+/* ════════════════════ DÉMARRAGE ════════════════════ */
+window.addEventListener('online',()=>{ if(S.offline){ boot(); } else flushQueue(); });
+setInterval(()=>{ if(S.user && qGet().length) flushQueue(); },30000);
+if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{})); }
+boot();
+</script>
+</body>
+</html>
